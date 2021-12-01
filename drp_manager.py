@@ -40,6 +40,10 @@ def main():
     with open('drp_config.live.ini') as f: config = yaml.safe_load(f)
     verify_inputs(config, inst)
 
+    # exit if instrument is not on for the night.
+    if not skip_avail and not chk_available(utdate, config, inst):
+        exit(1)
+
     koa_dir, drp_dir = get_dirs(config, inst, utdate, args.level)
 
     # DRP name and command
@@ -51,11 +55,12 @@ def main():
     if command == 'stop':
         pid = process_stop(pid)
     elif command == 'start':
-        process_start(pid, drp, drp_dir, drp_cmd, config, inst, utdate, skip_avail)
-        pid = is_drp_running(drp, extras, utdate)
+        if skip_avail or chk_available(utdate, config, inst):
+            process_start(pid, drp, drp_dir, drp_cmd)
+            pid = is_drp_running(drp, extras, utdate)
     elif command == 'restart':
         pid = process_stop(pid)
-        process_start(pid, drp, drp_dir, drp_cmd, config, inst, utdate, skip_avail)
+        process_start(pid, drp, drp_dir, drp_cmd)
 
     exit(0) if len(pid) > 0 else exit(1)
 
@@ -120,7 +125,24 @@ def is_drp_running(drp, extras, utdate):
     return matches
 
 
-def process_start(pid, drp, drp_dir, drp_cmd, config, inst, utdate, skip_avail):
+def chk_available(utdate, config, inst):
+    # Verify instrument is available or scheduled
+    hst = datetime.strptime(utdate, '%Y%m%d') - timedelta(days=1)
+    hstDate = hst.strftime('%Y-%m-%d')
+    api = f"{config['API']['TEL']}cmd=getInstrumentStatus&date={hstDate}"
+    data = urlopen(api)
+    data = data.read().decode('utf8')
+    data = json.loads(data)
+    if data[0][inst]['Available'] == 0 and data[0][inst]['Scheduled'] == 0:
+        print(f"{inst} is not available")
+        return False
+
+    print(f"{inst} is available")
+
+    return True
+
+
+def process_start(pid, drp, drp_dir, drp_cmd):
     '''
     Start the requested DRP
     '''
@@ -135,20 +157,6 @@ def process_start(pid, drp, drp_dir, drp_cmd, config, inst, utdate, skip_avail):
 
     print(f'Starting "{drp}" with the cmd:' + str(cmd))
     try:
-        # Verify instrument is available
-        if not skip_avail:
-            hst = datetime.strptime(utdate, '%Y%m%d') - timedelta(days=1)
-            hstDate = hst.strftime('%Y-%m-%d')
-            api = f"{config['API']['TEL']}cmd=getInstrumentStatus&date={hstDate}"
-            data = urlopen(api)
-            data = data.read().decode('utf8')
-            data = json.loads(data)
-            if data[0][inst]['Available'] == 0:
-                print(f"{inst} is not available")
-                return
-
-            print(f"{inst} is available")
-
         # change to output directory and start DRP
         os.chdir(drp_dir)
         p = subprocess.Popen(cmd)
