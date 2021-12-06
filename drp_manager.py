@@ -224,9 +224,11 @@ def get_dirs(config, inst, utdate, level):
 
 def get_cmd(config, inst, koa_dir, level):
     drp_config = config[inst][f'CONFIG_LEV{level}']
+    rti_config = config[inst][f'CONFIG_RTI']
     drp_cmd = config[inst][f'COMMAND_LEV{level}']
     drp_cmd = drp_cmd.replace('DIRECTORY', koa_dir)
     drp_cmd = drp_cmd.replace('DRP_CONFIG', drp_config)
+    drp_cmd = drp_cmd.replace('RTI_CONFIG', rti_config)
     extras = config[inst]['EXTRAS']
 
     return drp_cmd, extras
