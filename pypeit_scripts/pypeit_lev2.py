@@ -14,7 +14,7 @@ import subprocess
 ###
 
 
-def generate_pypeit_files(pargs):   
+def generate_pypeit_files(pargs, setup):   
     """Creates the a .pypeit file for every configuration identified in the
     input files
 
@@ -31,7 +31,7 @@ def generate_pypeit_files(pargs):
     print(f'Outputs will be saved in {setup_dir}')
 
     # Create the setup object
-    ps = PypeItSetup.from_file_root(root, pargs.inst,
+    ps = setup.from_file_root(root, pargs.inst,
                                     extension=".fits", output_path=setup_dir)
     ps.user_cfg = ['[rdx]', 'ignore_bad_headers = True']
 
@@ -223,7 +223,7 @@ def main():
 
 
     # Create all the pypeit files
-    generate_pypeit_files(pargs)
+    generate_pypeit_files(pargs, PypeItSetup)
     
     setup_files = Path(pargs.output) / 'pypeit_files'
     # Select only the pypeit files that are for an instrument configuration
