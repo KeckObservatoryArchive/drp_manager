@@ -9,9 +9,6 @@ from argparse import ArgumentParser
 from configparser import ConfigParser
 import subprocess
 
-from pypeit.pypeitsetup import PypeItSetup
-
-
 ###
 ##### PypeIt Stuff
 ###
@@ -201,6 +198,13 @@ def get_parsed_args():
 
 def main():
 
+    try:
+        from pypeit.pypeitsetup import PypeItSetup
+    except ImportError:
+        print("Could not import PypeIt. Is it installed in this environment?")
+        print("Exiting...")
+        sys.exit(1)
+
     
     # Parse the arguments
     pargs = get_parsed_args()
@@ -241,7 +245,8 @@ def main():
 
         with Pool(processes=num) as pool:
             pool.starmap(func=run_pypeit_helper, iterable=args)
-
+    
+        print("Reduction complete!")
 
 if __name__ == '__main__':
     main()
