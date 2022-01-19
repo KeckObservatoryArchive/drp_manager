@@ -40,10 +40,6 @@ def main():
     with open('drp_config.live.ini') as f: config = yaml.safe_load(f)
     verify_inputs(config, inst)
 
-    # exit if instrument is not on for the night.
-    if not skip_avail and not chk_available(utdate, config, inst):
-        exit(1)
-
     koa_dir, drp_dir = get_dirs(config, inst, utdate, args.level)
 
     # DRP name and command
