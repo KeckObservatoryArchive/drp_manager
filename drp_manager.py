@@ -44,7 +44,7 @@ def main():
 
     # DRP name and command
     drp = config[inst]['DRP']
-    drp_cmd, extras = get_cmd(config, inst, koa_dir, args.level)
+    drp_cmd, extras = get_cmd(config, inst, utdate, koa_dir, args.level)
 
     # Do the request
     pid = is_drp_running(drp, extras, utdate)
@@ -218,13 +218,15 @@ def get_dirs(config, inst, utdate, level):
     return koa_dir, drp_dir
 
 
-def get_cmd(config, inst, koa_dir, level):
+def get_cmd(config, inst, utdate, koa_dir, level):
+    output_dir = f"{config[inst]['DRPDIR']}/{utdate}"
     drp_config = config[inst][f'CONFIG_LEV{level}']
     rti_config = config[inst][f'CONFIG_RTI']
     drp_cmd = config[inst][f'COMMAND_LEV{level}']
     drp_cmd = drp_cmd.replace('DIRECTORY', koa_dir)
     drp_cmd = drp_cmd.replace('DRP_CONFIG', drp_config)
     drp_cmd = drp_cmd.replace('RTI_CONFIG', rti_config)
+    drp_cmd = drp_cmd.replace('OUTPUT_DIR', output_dir)
     extras = config[inst]['EXTRAS']
 
     return drp_cmd, extras
