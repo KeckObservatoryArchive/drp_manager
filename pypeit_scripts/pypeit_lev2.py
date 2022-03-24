@@ -77,6 +77,8 @@ def run_pypeit_helper(pypeit_file, pargs, cfg):
 
     if proc.returncode != 0:
         print(f"Error encountered while reducing {pypeit_file}")
+        print("Attempting to alert RTI anyway...")
+        alert_RTI(outputs, pargs, cfg)
         print(f"Log can be found at {logpath}")
     else:
         print(f"Reduced {pypeit_file}")
@@ -111,7 +113,7 @@ def alert_RTI(directory, pargs, cfg):
 
     data = {
         'instrument': pargs.inst,
-        'koaid': "KOAID_HERE", # This won't be KOAID anymore, will it?
+        # 'koaid': "KOAID_HERE", # PypeIt files are found from datadir, not koaid
         'ingesttype': cfg['RTI']['rti_ingesttype'],
         'datadir': str(data_directory),
         'start': str(cfg.start_time),
@@ -228,6 +230,26 @@ def main():
     setup_files = Path(pargs.output) / 'pypeit_files'
     # Select only the pypeit files that are for an instrument configuration
     pypeit_files = list(setup_files.rglob(f'{pargs.inst}_?.pypeit'))
+    
+    # Add in special parameters
+    # For each pypeit file
+        # Open it
+        # Advance to user parameters
+        # Add in whatever we require
+        # Close and save
+    
+    pars = "[calibrations] [[flatfield]] saturated_slits = mask\n"
+    
+    for file in pypeit_files:
+        with open(file, 'r+') as f:
+            contents = f.readlines()
+            for index, line in enumerate(contents):
+                if "# Setup" in line:
+                    contents.insert(index - 1, pars)
+                    break
+            f.seek(0)
+            f.writelines(contents)
+            
     args = []
 
     # Create the arguments for the pool mapping function
