@@ -97,7 +97,7 @@ def alert_RTI(directory, pargs, cfg):
         try:
             res = requests.get(url,
                                params = data, 
-                               auth = (cfg.user, cfg.pw))
+                               auth = (cfg['RTI']['user'], cfg['RTI']['pass']))
             print(f"Sending {res.request.url}")
         except requests.exceptions.RequestException as e:
             print(f"Error caught while posting to {url}:")
@@ -238,7 +238,7 @@ def main():
         # Add in whatever we require
         # Close and save
     
-    pars = "[calibrations] [[flatfield]] saturated_slits = mask\n"
+    pars = "[calibrations]\n[[flatfield]]\nsaturated_slits = mask\n"
     
     for file in pypeit_files:
         with open(file, 'r+') as f:
