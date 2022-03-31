@@ -42,6 +42,11 @@ def main():
 
     koa_dir, drp_dir = get_dirs(config, inst, utdate, args.level)
 
+    # PypeIt?
+    pypeit = False
+    if inst in config['PYPEIT']:
+        pypeit = True
+
     # DRP name and command
     drp = config[inst]['DRP']
     drp_cmd, extras = get_cmd(config, inst, utdate, koa_dir, args.level)
@@ -52,11 +57,11 @@ def main():
         pid = process_stop(pid)
     elif command == 'start':
         if skip_avail or chk_available(utdate, config, inst):
-            process_start(pid, drp, drp_dir, drp_cmd)
+            process_start(pid, drp, drp_dir, drp_cmd, pypeit)
             pid = is_drp_running(drp, extras, utdate)
     elif command == 'restart':
         pid = process_stop(pid)
-        process_start(pid, drp, drp_dir, drp_cmd)
+        process_start(pid, drp, drp_dir, drp_cmd, pypeit)
 
     exit(0) if len(pid) > 0 else exit(1)
 
@@ -138,7 +143,7 @@ def chk_available(utdate, config, inst):
     return True
 
 
-def process_start(pid, drp, drp_dir, drp_cmd):
+def process_start(pid, drp, drp_dir, drp_cmd, pypeit):
     '''
     Start the requested DRP
     '''
@@ -154,7 +159,8 @@ def process_start(pid, drp, drp_dir, drp_cmd):
     print(f'Starting "{drp}" with the cmd:' + str(cmd))
     try:
         # change to output directory and start DRP
-        os.chdir(drp_dir)
+        if pypeit == False:
+            os.chdir(drp_dir)
         p = subprocess.Popen(cmd)
     except Exception as e:
         print('Error running command: ' + str(e))
