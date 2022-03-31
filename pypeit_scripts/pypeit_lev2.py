@@ -78,11 +78,12 @@ def run_pypeit_helper(pypeit_file, pargs, cfg):
     if proc.returncode != 0:
         print(f"Error encountered while reducing {pypeit_file}")
         print("Attempting to alert RTI anyway...")
-        alert_RTI(outputs, pargs, cfg)
-        print(f"Log can be found at {logpath}")
     else:
         print(f"Reduced {pypeit_file}")
-        alert_RTI(outputs, pargs, cfg)
+        print("Alerting RTI...")
+    
+    alert_RTI(outputs, pargs, cfg)
+    print(f"Log can be found at {logpath}")
     f.close()
 
 
@@ -105,7 +106,7 @@ def alert_RTI(directory, pargs, cfg):
             return None
         return res
     
-    data_directory = pargs.output
+    data_directory = pargs.output + "/pypeit_files"
     
     print(f"Alerting RTI that {directory} is ready for ingestion")
 
@@ -257,7 +258,7 @@ def main():
     for f in pypeit_files:
         print(f'    {f}')
         new_pargs = copy(pargs)
-        new_pargs.output = os.path.join(pargs.output, "redux")
+        # new_pargs.output = os.path.join(pargs.output)
         print(f"          Output is {new_pargs.output}")
         args.append((f, new_pargs, cfg))
 
