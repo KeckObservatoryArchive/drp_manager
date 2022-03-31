@@ -31,7 +31,7 @@ def generate_pypeit_files(pargs, setup):
     print(f'Outputs will be saved in {setup_dir}')
 
     # Create the setup object
-    ps = setup.from_file_root(root, pargs.inst,
+    ps = setup.from_file_root(root, pargs.pypeit_name,
                                     extension=".fits", output_path=setup_dir)
     ps.user_cfg = ['[rdx]', 'ignore_bad_headers = True']
 
@@ -106,7 +106,7 @@ def alert_RTI(directory, pargs, cfg):
             return None
         return res
     
-    data_directory = pargs.output + "/pypeit_files"
+    # data_directory = pargs.output + "/pypeit_files"
     
     print(f"Alerting RTI that {directory} is ready for ingestion")
 
@@ -116,7 +116,7 @@ def alert_RTI(directory, pargs, cfg):
         'instrument': pargs.inst,
         # 'koaid': "KOAID_HERE", # PypeIt files are found from datadir, not koaid
         'ingesttype': cfg['RTI']['rti_ingesttype'],
-        'datadir': str(data_directory),
+        'datadir': str(directory),
         'start': str(cfg.start_time),
         'reingest': cfg['RTI']['rti_reingest'],
         'testonly': cfg['RTI']['rti_testonly'],
@@ -198,6 +198,9 @@ def get_parsed_args():
 
     return pargs
 
+def print_inst_options(cfg):
+    inst_options = "', ".join(cfg.inst_opts.keys())
+    print(f"Options are: '{inst_options}'")
 
 def main():
 
@@ -216,9 +219,17 @@ def main():
     cfg = get_config(pargs.cfg_file)
 
     if pargs.opts:
-        inst_options = "', ".join(cfg.inst_opts.keys())
-        print(f"Options are: '{inst_options}'")
+        print_inst_options(cfg)
         sys.exit(0)
+
+    # Check if the input instrument name is valid
+    if pargs.inst not in cfg.inst_opts.keys():
+        print("Invalid instrument name")
+        print_inst_options(cfg)
+        sys.exit(0)
+    
+    # Get PypeIt's instrument name
+    pargs.pypeit_name = cfg.inst_opts[pargs.inst]['pypeit_name']
 
     # If no root is specified, get it from the instruments list
     if pargs.root is None:
@@ -230,7 +241,7 @@ def main():
     
     setup_files = Path(pargs.output) / 'pypeit_files'
     # Select only the pypeit files that are for an instrument configuration
-    pypeit_files = list(setup_files.rglob(f'{pargs.inst}_?.pypeit'))
+    pypeit_files = list(setup_files.rglob(f'{pargs.pypeit_name}_?.pypeit'))
     
     # Add in special parameters
     # For each pypeit file
