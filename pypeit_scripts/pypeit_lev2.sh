@@ -16,5 +16,5 @@ case $INSTRUMENT in
     ;;
 esac
 if "$RUN"; then
-  python /drp/manager/default/pypit_scripts/pypeit_lev2.py $INSTRUMENT -i /koadata/$INSTRUMENT/$DATE/lev0 -r $PREFIX -o /k2drpdata/${INSTRUMENT}_DRP/$DATE -n 10 
+  python /drp/manager/default/pypeit_scripts/pypeit_lev2.py $INSTRUMENT -i /koadata/$INSTRUMENT/$DATE/lev0 -r $PREFIX -o /k2drpdata/${INSTRUMENT}_DRP/$DATE -n 10 
 fi
