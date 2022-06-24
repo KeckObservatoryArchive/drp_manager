@@ -1,6 +1,6 @@
 #!/usr/bin/sh
 
-export PATH=$HOME/.conda/envs/pypeit/bin:/usr/sbin:/usr/bin:/sbin:/binmes
+export PATH=$HOME/.conda/envs/pypeit/bin:/usr/sbin:/usr/bin:/sbin:/bin
 DATE=`date -u '+%Y%m%d'`
 INSTRUMENT=`echo $1 | tr '[a-z]' '[A-Z]'`
 LEV0DATA="/koadata/$INSTRUMENT/$DATE/lev0"
