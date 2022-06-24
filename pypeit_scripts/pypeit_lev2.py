@@ -73,6 +73,9 @@ def run_pypeit_helper(pypeit_file, pargs, cfg):
     args += [pypeit_file]
     args += ['-r', str(outputs)]
     args += ['-o']
+    if pargs.calib == '--calibonly':
+        args += ['-c']
+
     proc = subprocess.run(args, stdout=f, stderr=f)
 
     if proc.returncode != 0:
@@ -193,6 +196,9 @@ def get_parsed_args():
     parser.add_argument('--instrument-options', dest='opts',
                         action='store_true',
                         help='prints the instruments this script can reduce')
+    
+    parser.add_argument('--calibonly', dest='calib', action='store_true',
+                        help='process calibrations only')
     
     pargs =  parser.parse_args()
 
