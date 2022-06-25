@@ -73,7 +73,7 @@ def run_pypeit_helper(pypeit_file, pargs, cfg):
     args += [pypeit_file]
     args += ['-r', str(outputs)]
     args += ['-o']
-    if pargs.calib == '--calibonly':
+    if pargs.calib == True:
         args += ['-c']
 
     proc = subprocess.run(args, stdout=f, stderr=f)
