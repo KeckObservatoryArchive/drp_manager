@@ -21,7 +21,7 @@ if [ ! -d $LEV0DIR ]; then
   RUN=false
 fi      
 CALIB=''
-if [ "$2" == "--calibonly" ]; then
+if [ "$2" = "--calibonly" ]; then
     CALIB=$2
 fi
 if [ "$RUN" ]; then
