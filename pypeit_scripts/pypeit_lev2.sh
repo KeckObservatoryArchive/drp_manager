@@ -8,9 +8,11 @@ RUN=true
 case $INSTRUMENT in
   DEIMOS)
     PREFIX='DE.'
+    OUTPUTDIR='/k2drpdata'
     ;;
   MOSFIRE)
     PREFIX='MF.'
+    OUTPUTDIR='/k1drpdata'
     ;;
   *)
     RUN=false
@@ -26,5 +28,5 @@ if [ "$2" = "--calibonly" ]; then
 fi
 if [ "$RUN" ]; then
   cd /drp/manager/default/pypeit_scripts
-  python pypeit_lev2.py $INSTRUMENT -i /koadata/$INSTRUMENT/$DATE/lev0 -r $PREFIX -o /k2drpdata/${INSTRUMENT}_DRP/$DATE -n 10 $CALIB
+  python pypeit_lev2.py $INSTRUMENT -i /koadata/$INSTRUMENT/$DATE/lev0 -r $PREFIX -o $OUTPUTDIR/${INSTRUMENT}_DRP/$DATE -n 10 $CALIB
 fi
