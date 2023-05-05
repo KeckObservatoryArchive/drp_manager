@@ -196,7 +196,7 @@ def get_parsed_args():
                         help='number of processes to launch')
     
     parser.add_argument('-c', '--config', dest='cfg_file',
-                        default='./pypeit_lev2.ini', help='Config file to use')
+                        default='./pypeit_lev2.live.ini', help='Config file to use')
     
     parser.add_argument('--setup-only', dest='setup', action='store_true',
                         help="Only create the pypeit files, don't reduce them")
