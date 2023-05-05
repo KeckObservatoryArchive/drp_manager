@@ -14,7 +14,7 @@ import subprocess
 ###
 
 
-def generate_pypeit_files(pargs, setup):   
+def generate_pypeit_files(pargs, setup, cfg):   
     """Creates the a .pypeit file for every configuration identified in the
     input files
 
@@ -35,12 +35,19 @@ def generate_pypeit_files(pargs, setup):
                                     extension=".fits", output_path=setup_dir)
     ps.user_cfg = ['[rdx]', 'ignore_bad_headers = True']
 
+    # If the instrument is IR, use the -b flag (write_bkg_pairs=True)
+    ir_insts = cfg['INSTRUMENTS']['ir_insts'].split(' ')
+    is_ir = False
+    if pargs.inst in ir_insts:
+        print("Instrument is IR, using background pairs")
+        is_ir = True
+
     # Run the setup
     ps.run(setup_only=True, calibration_check=False, sort_dir=setup_dir,
-           obslog=True)
+           obslog=True, write_bkg_pairs=is_ir)
 
     # Save the setup to .pypeit files
-    ps.fitstbl.write_pypeit(setup_dir, configs='all')
+    ps.fitstbl.write_pypeit(setup_dir, configs='all', write_bkg_pairs=is_ir)
 
 
 def run_pypeit_helper(pypeit_file, pargs, cfg):
@@ -73,6 +80,7 @@ def run_pypeit_helper(pypeit_file, pargs, cfg):
     args += [pypeit_file]
     args += ['-r', str(outputs)]
     args += ['-o']
+
     if pargs.calib == True:
         args += ['-c']
 
@@ -243,7 +251,7 @@ def main():
 
 
     # Create all the pypeit files
-    generate_pypeit_files(pargs, PypeItSetup)
+    generate_pypeit_files(pargs, PypeItSetup, cfg)
     
     setup_files = Path(pargs.output) / 'pypeit_files'
     # Select only the pypeit files that are for an instrument configuration
