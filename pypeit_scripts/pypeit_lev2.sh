@@ -2,6 +2,7 @@
 
 export PATH=$HOME/.conda/envs/pypeit/bin:/usr/sbin:/usr/bin:/sbin:/bin
 DATE=`date -u '+%Y%m%d'`
+DATE='20230405'
 INSTRUMENT=`echo $1 | tr '[a-z]' '[A-Z]'`
 LEV0DATA="/koadata/$INSTRUMENT/$DATE/lev0"
 RUN=true
@@ -13,6 +14,10 @@ case $INSTRUMENT in
   MOSFIRE)
     PREFIX='MF.'
     OUTPUTDIR='/k1drpdata'
+    ;;
+  NIRES)
+    PREFIX='NR.'
+    OUTPUTDIR='/k2drpdata'
     ;;
   *)
     RUN=false
