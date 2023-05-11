@@ -33,7 +33,7 @@ then
   RUN=false
 fi      
 CALIB=''
-if [ "$2" == "--calibonly" ] || [ "$3" == "--calibonly" ]
+if [ "$2" = "--calibonly" ] || [ "$3" = "--calibonly" ]
 then
     CALIB="--calibonly"
 fi
