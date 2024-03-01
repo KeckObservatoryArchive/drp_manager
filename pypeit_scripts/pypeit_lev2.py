@@ -10,6 +10,13 @@ from configparser import ConfigParser
 import subprocess
 
 ###
+#### Bad Deimos detector. Temporary until this stops changing all the time.
+###
+
+deimos_det_5_is_bad = True
+deimos_detnum = "1,(2,6),(3,7),(4,8)"
+
+###
 ##### PypeIt Stuff
 ###
 
@@ -34,6 +41,8 @@ def generate_pypeit_files(pargs, setup, cfg):
     ps = setup.from_file_root(root, pargs.pypeit_name,
                                     extension=".fits", output_path=setup_dir)
     ps.user_cfg = ['[rdx]', 'ignore_bad_headers = True']
+    if "deimos" in pargs.inst and deimos_det_5_is_bad:
+        ps.user_cfg += [f'detnum = {deimos_detnum}']
 
     # If the instrument is IR, use the -b flag (write_bkg_pairs=True)
     ir_insts = cfg['INSTRUMENTS']['ir_insts'].split(' ')
