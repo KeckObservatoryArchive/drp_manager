@@ -39,7 +39,7 @@ def generate_pypeit_files(pargs, setup, cfg):
 
     # Create the setup object
     ps = setup.from_file_root(root, pargs.pypeit_name,
-                                    extension=".fits", output_path=setup_dir)
+                                    extension=".fits")
     ps.user_cfg = ['[rdx]', 'ignore_bad_headers = True']
     if "deimos" in pargs.inst and deimos_det_5_is_bad:
         ps.user_cfg += [f'detnum = {deimos_detnum}']
@@ -56,8 +56,12 @@ def generate_pypeit_files(pargs, setup, cfg):
            obslog=True, write_bkg_pairs=is_ir)
 
     # Save the setup to .pypeit files
-    ps.fitstbl.write_pypeit(setup_dir, configs='all', write_bkg_pairs=is_ir)
-
+    # ps.fitstbl.write_pypeit(setup_dir, configs='all', write_bkg_pairs=is_ir)
+    pypeit_files = ps.fitstbl.write_pypeit(output_path=setup_dir,
+                                           write_bkg_pairs=is_ir,
+                                           configs='all',
+                                           version_override=None,
+                                           date_override=None)
 
 def run_pypeit_helper(pypeit_file, pargs, cfg):
     """Runs a PypeIt reduction off of a specific .pypeit file, using the io
