@@ -97,9 +97,6 @@ def get_parsed_args():
                         default=default_output,
                         help='Directory to put output in. Defaults to ./redux')
     
-    parser.add_argument('-r', '--root', dest='root',
-                        help='Base root of the files. Must be [KB, KR, kb, kr]')
-    
     parser.add_argument('-c', '--config', dest='cfg',default='./kcwi.ini',
                         help='Configuration file to use. Defaults to kcwi.ini')
 
