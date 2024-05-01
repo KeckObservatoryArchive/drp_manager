@@ -9,54 +9,6 @@ from configparser import ConfigParser
 import subprocess
 
 
-
-def run_pypeit_helper(pypeit_file, pargs, cfg):
-    """Runs a PypeIt reduction off of a specific .pypeit file, using the io
-    parameters in pargs.
-
-    The reduction is launched in a subprocess using the subprocess library, with
-    stdout and stderr directed to a single log file. 
-
-    Parameters
-    ----------
-    pypeit_file : str or pathlike
-        .pypeit file to reduce
-    pargs : Parsed command line arguments
-        Should be from get_parsed_args()
-    """
-
-    print(f"Processing config from {str(pypeit_file)}")
-
-    # Open file to dump logs into
-    logname = os.path.splitext(pypeit_file)[0] + '.log'
-    logpath = os.path.join(pargs.output, logname)
-    f = open(logpath, 'w+')
-    
-    # Get full output path
-    outputs = os.path.join(pargs.output, os.path.splitext(pypeit_file)[0])
-    
-    # Run the reduction in a subprocess
-    args = ['run_pypeit']
-    args += [pypeit_file]
-    args += ['-r', str(outputs)]
-    args += ['-o']
-    if pargs.calib == True:
-        args += ['-c']
-
-    proc = subprocess.run(args, stdout=f, stderr=f)
-
-    if proc.returncode != 0:
-        print(f"Error encountered while reducing {pypeit_file}")
-        print("Attempting to alert RTI anyway...")
-    else:
-        print(f"Reduced {pypeit_file}")
-        print("Alerting RTI...")
-    
-    alert_RTI(outputs, pargs, cfg)
-    print(f"Log can be found at {logpath}")
-    f.close()
-
-
 ###
 ##### RTI Stuff
 ###
@@ -187,8 +139,8 @@ def main():
     print("Blue command: " + blue_cmd)
     
     try:
-        # subprocess.Popen(red_cmd.split(" "), cwd=pargs.output + "/red")
-        # subprocess.Popen(blue_cmd.split(" "), cwd=pargs.output + "/blue")
+        subprocess.Popen(red_cmd.split(" "), cwd=pargs.output + "/red")
+        subprocess.Popen(blue_cmd.split(" "), cwd=pargs.output + "/blue")
         pass
     except Exception as e:
         print('Error running command: ' + str(e))
