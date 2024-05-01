@@ -99,6 +99,9 @@ def get_parsed_args():
     
     parser.add_argument('-c', '--config', dest='cfg',default='./kcwi.ini',
                         help='Configuration file to use. Defaults to kcwi.ini')
+    
+    parser.add_argument('--rti-cfg', dest='rti_cfg', default='./rti.ini', 
+                        help='RTI configuration file to use. Defaults to rti.ini')
 
     
     
@@ -130,6 +133,15 @@ def main():
     else:
         red_cmd = cfg['lev2']['red_cmd']
         blue_cmd = cfg['lev2']['blue_cmd']
+    
+    red_cmd.replace("DIRECTORY", pargs.input)
+    blue_cmd.replace("DIRECTORY", pargs.input)
+
+    red_cmd.replace("DRP_CONFIG", pargs.cfg)
+    blue_cmd.replace("DRP_CONFIG", pargs.cfg)
+
+    red_cmd.replace("CONFIG_RTI", pargs.rti_cfg)
+    blue_cmd.replace("CONFIG_RTI", pargs.rti_cfg)
 
     print("Running red and blue commands:")
     print("Red command: " + red_cmd)
