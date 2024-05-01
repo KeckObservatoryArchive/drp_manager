@@ -8,47 +8,6 @@ from argparse import ArgumentParser
 from configparser import ConfigParser
 import subprocess
 
-
-###
-##### RTI Stuff
-###
-
-
-def alert_RTI(directory, pargs, cfg):
-
-    def get_url(url, data):
-        try:
-            res = requests.get(url,
-                               params = data, 
-                               auth = (cfg['RTI']['user'], cfg['RTI']['pass']))
-            print(f"Sending {res.request.url}")
-        except requests.exceptions.RequestException as e:
-            print(f"Error caught while posting to {url}:")
-            print(e)
-            return None
-        return res
-    
-    # data_directory = pargs.output + "/pypeit_files"
-    
-    print(f"Alerting RTI that {directory} is ready for ingestion")
-
-    url = cfg['RTI']['url']
-
-    data = {
-        'instrument': pargs.inst,
-        # 'koaid': "KOAID_HERE", # PypeIt files are found from datadir, not koaid
-        'ingesttype': cfg['RTI']['rti_ingesttype'],
-        'datadir': str(directory),
-        'start': str(cfg.start_time),
-        'reingest': cfg['RTI']['rti_reingest'],
-        'testonly': cfg['RTI']['rti_testonly'],
-        'dev': cfg['RTI']['rti_dev']
-    }
-    
-   
-    res = get_url(url, data)
-    
-
 ###
 ##### Script Stuff
 ###
@@ -56,19 +15,8 @@ def alert_RTI(directory, pargs, cfg):
 def get_config(cfg_file):
 
     cfg = ConfigParser()
+    print("Reading " + cfg_file)
     cfg.read(cfg_file)
-    
-    inst_options = cfg['INSTRUMENTS']['keck_inst_names'].split(' ')
-    inst_pypeit = cfg['INSTRUMENTS']['pypeit_inst_names'].split(' ')
-    inst_roots = cfg['INSTRUMENTS']['roots'].split(' ')
-    cfg.inst_opts = {
-        inst_options[i] : {
-            'pypeit_name' : inst_pypeit[i],
-            'root' : inst_roots[i]
-        }
-    for i in range(len(inst_options))}
-
-    cfg.start_time = datetime.utcnow()
 
     return cfg
 
@@ -112,7 +60,9 @@ def get_parsed_args():
 def get_config(cfg_file):
 
     cfg = ConfigParser()
+    print(f"Reading {cfg_file}")
     cfg.read(cfg_file)
+    
 
     return cfg
 
