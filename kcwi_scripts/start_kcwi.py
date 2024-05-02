@@ -93,16 +93,16 @@ def main():
     red_cmd.replace("DRP_CONFIG", pargs.cfg)
     blue_cmd.replace("DRP_CONFIG", pargs.cfg)
 
-    red_cmd.replace("CONFIG_RTI", pargs.rti_cfg)
-    blue_cmd.replace("CONFIG_RTI", pargs.rti_cfg)
+    red_cmd.replace("RTI_CONFIG", pargs.rti_cfg)
+    blue_cmd.replace("RTI_CONFIG", pargs.rti_cfg)
 
     print("Running red and blue commands:")
     print("Red command: " + red_cmd)
     print("Blue command: " + blue_cmd)
     
     try:
-        subprocess.Popen(red_cmd.split(" "), cwd=pargs.output + "/red")
-        subprocess.Popen(blue_cmd.split(" "), cwd=pargs.output + "/blue")
+        subprocess.Popen(red_cmd.split(" "), stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT, cwd=pargs.output + "/red")
+        subprocess.Popen(blue_cmd.split(" "), stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT, cwd=pargs.output + "/blue")
         pass
     except Exception as e:
         print('Error running command: ' + str(e))
