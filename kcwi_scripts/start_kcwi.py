@@ -50,6 +50,7 @@ def get_parsed_args():
     
     parser.add_argument('--rti-cfg', dest='rti_cfg', default='./rti.ini', 
                         help='RTI configuration file to use. Defaults to rti.ini')
+    parser.add_argument('--drp-cfg', dest='drp_cfg', help='DRP configuration file to use.')
 
     
     
@@ -90,8 +91,8 @@ def main():
     red_cmd.replace("DIRECTORY", pargs.input)
     blue_cmd.replace("DIRECTORY", pargs.input)
 
-    red_cmd.replace("DRP_CONFIG", pargs.cfg)
-    blue_cmd.replace("DRP_CONFIG", pargs.cfg)
+    red_cmd.replace("DRP_CONFIG", pargs.drp_cfg)
+    blue_cmd.replace("DRP_CONFIG", pargs.drp_cfg)
 
     red_cmd.replace("RTI_CONFIG", pargs.rti_cfg)
     blue_cmd.replace("RTI_CONFIG", pargs.rti_cfg)
