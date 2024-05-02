@@ -88,14 +88,14 @@ def main():
         red_cmd += cfg['lev2']['red_cmd']
         blue_cmd += cfg['lev2']['blue_cmd']
     
-    red_cmd.replace("DIRECTORY", pargs.input)
-    blue_cmd.replace("DIRECTORY", pargs.input)
+    red_cmd = red_cmd.replace("DIRECTORY", pargs.input)
+    blue_cmd = blue_cmd.replace("DIRECTORY", pargs.input)
 
-    red_cmd.replace("DRP_CONFIG", pargs.drp_cfg)
-    blue_cmd.replace("DRP_CONFIG", pargs.drp_cfg)
+    red_cmd = red_cmd.replace("DRP_CONFIG", pargs.drp_cfg)
+    blue_cmd = blue_cmd.replace("DRP_CONFIG", pargs.drp_cfg)
 
-    red_cmd.replace("RTI_CONFIG", pargs.rti_cfg)
-    blue_cmd.replace("RTI_CONFIG", pargs.rti_cfg)
+    red_cmd = red_cmd.replace("RTI_CONFIG", pargs.rti_cfg)
+    blue_cmd = blue_cmd.replace("RTI_CONFIG", pargs.rti_cfg)
 
     print("Running red and blue commands:")
     print("Red command: " + red_cmd)
