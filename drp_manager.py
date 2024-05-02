@@ -44,7 +44,7 @@ def main():
 
     # PypeIt?
     pypeit = False
-    if inst in config['PYPEIT']:
+    if config.get('PYPEIT', None) and inst in config['PYPEIT']:
         pypeit = True
 
     # DRP name and command
