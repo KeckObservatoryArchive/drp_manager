@@ -77,12 +77,15 @@ def main():
     os.makedirs(pargs.output + "/red", exist_ok=True)
     os.makedirs(pargs.output + "/blue", exist_ok=True)
 
+    red_cmd = cfg['cmd']['cmd_path'] + " "
+    blue_cmd = cfg['cmd']['cmd_path'] + " "
+
     if pargs.level == 'lev1':
-        red_cmd = cfg['lev1']['red_cmd']
-        blue_cmd = cfg['lev1']['blue_cmd']
+        red_cmd += cfg['lev1']['red_cmd']
+        blue_cmd += cfg['lev1']['blue_cmd']
     else:
-        red_cmd = cfg['lev2']['red_cmd']
-        blue_cmd = cfg['lev2']['blue_cmd']
+        red_cmd += cfg['lev2']['red_cmd']
+        blue_cmd += cfg['lev2']['blue_cmd']
     
     red_cmd.replace("DIRECTORY", pargs.input)
     blue_cmd.replace("DIRECTORY", pargs.input)
