@@ -67,6 +67,28 @@ def get_config(cfg_file):
 
     return cfg
 
+def alert_RTI(cfg, date):
+
+        
+    data = {
+        'instrument': "KCWI",
+        'ingesttype': "lev2",
+        'utdate' : date,
+        'testonly': "true",
+        'dev': "true"
+    }
+    
+    try:
+        res = requests.get(cfg.url,
+                            params = data, 
+                            auth = (cfg.user, cfg.pw))
+        print(f"Sending {res.request.url}")
+    except requests.exceptions.RequestException as e:
+        print(f"Error caught while GETing to {cfg.url}:")
+        print(e)
+        return None
+    return res
+
 def main():
     
     # Parse the arguments
@@ -101,14 +123,25 @@ def main():
     print("Red command: " + red_cmd)
     print("Blue command: " + blue_cmd)
     
-    try:
-        subprocess.Popen(red_cmd.split(" "), stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT, cwd=pargs.output + "/red")
-        subprocess.Popen(blue_cmd.split(" "), stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT, cwd=pargs.output + "/blue")
-        pass
-    except Exception as e:
-        print('Error running command: ' + str(e))
+    def run_cmd(cmd, cwd):
+        subprocess.Popen(cmd.split(" "), stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT, cwd=cwd)
+
+    if pargs.level == 'lev2':
+        try:
+            with Pool(processes=2) as pool:
+                pool.starmap(func=run_cmd, iterable=[(red_cmd, pargs.output + "/red"), (blue_cmd, pargs.output + "/blue")])
+            alert_RTI(cfg, datetime.now().strftime("%Y%m%d"))
+        except Exception as e:
+            print('Error running command: ' + str(e))
+    else: # lev1
+        try:
+            subprocess.Popen(red_cmd.split(" "), stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT, cwd=pargs.output + "/red")
+            subprocess.Popen(blue_cmd.split(" "), stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT, cwd=pargs.output + "/blue")
+        except Exception as e:
+            print('Error running command: ' + str(e))
+
     print("done")
-    
+
 
 if __name__ == '__main__':
     main()
