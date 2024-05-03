@@ -89,6 +89,11 @@ def alert_RTI(cfg, date):
         return None
     return res
 
+
+def run_cmd(cmd, cwd):
+    subprocess.Popen(cmd.split(" "), stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT, cwd=cwd)
+
+
 def main():
     
     # Parse the arguments
@@ -123,9 +128,6 @@ def main():
     print("Red command: " + red_cmd)
     print("Blue command: " + blue_cmd)
     
-    def run_cmd(cmd, cwd):
-        subprocess.Popen(cmd.split(" "), stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT, cwd=cwd)
-
     if pargs.level == 'lev2':
         try:
             with Pool(processes=2) as pool:
@@ -135,8 +137,10 @@ def main():
             print('Error running command: ' + str(e))
     else: # lev1
         try:
-            subprocess.Popen(red_cmd.split(" "), stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT, cwd=pargs.output + "/red")
-            subprocess.Popen(blue_cmd.split(" "), stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT, cwd=pargs.output + "/blue")
+            run_cmd(red_cmd, pargs.output + "/red")
+            run_cmd(blue_cmd, pargs.output + "/blue")
+            # subprocess.Popen(red_cmd.split(" "), stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT, cwd=pargs.output + "/red")
+            # subprocess.Popen(blue_cmd.split(" "), stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT, cwd=pargs.output + "/blue")
         except Exception as e:
             print('Error running command: ' + str(e))
 
