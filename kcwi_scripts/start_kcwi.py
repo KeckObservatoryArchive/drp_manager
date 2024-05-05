@@ -58,15 +58,6 @@ def get_parsed_args():
 
     return pargs
 
-def get_config(cfg_file):
-
-    cfg = ConfigParser()
-    print(f"Reading {cfg_file}")
-    cfg.read(cfg_file)
-    
-
-    return cfg
-
 def alert_RTI(cfg, date):
 
         
@@ -79,12 +70,12 @@ def alert_RTI(cfg, date):
     }
     
     try:
-        res = requests.get(cfg.url,
+        res = requests.get(cfg['rti']['url'],
                             params = data, 
-                            auth = (cfg.user, cfg.pw))
+                            auth = (cfg['rti']['rti_user'], cfg['rti']['rti_pass']))
         print(f"Sending {res.request.url}")
     except requests.exceptions.RequestException as e:
-        print(f"Error caught while GETing to {cfg.url}:")
+        print(f"Error caught while GETing to {cfg['rti']['url']}:")
         print(e)
         return None
     return res
