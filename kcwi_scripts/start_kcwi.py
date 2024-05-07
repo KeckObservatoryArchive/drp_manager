@@ -137,7 +137,7 @@ def main():
         except Exception as e:
             print('Error running command: ' + str(e))
 
-    print("done")
+    print(f"Finished {pargs.level} reductions at {datetime.now()} HST")
 
 
 if __name__ == '__main__':
