@@ -84,7 +84,7 @@ def alert_RTI(cfg, date):
 
 
 def run_cmd(cmd, cwd):
-    subprocess.Popen(cmd.split(" "), stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT, cwd=cwd)
+    subprocess.call(cmd.split(" "), stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT, cwd=cwd)
 
 
 def main():
