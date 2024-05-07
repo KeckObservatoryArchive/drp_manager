@@ -73,10 +73,12 @@ def alert_RTI(cfg, date):
         res = requests.get(cfg['rti']['url'],
                             params = data, 
                             auth = (cfg['rti']['rti_user'], cfg['rti']['rti_pass']))
-        print(f"Sending {res.request.url}")
+        print(f"Sent {res.request.url}")
+        print(f"Response:\n{res.text}")
     except requests.exceptions.RequestException as e:
         print(f"Error caught while GETing to {cfg['rti']['url']}:")
         print(e)
+        print("Continuing without alerting RTI")
         return None
     return res
 
