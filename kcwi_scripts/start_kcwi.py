@@ -125,6 +125,8 @@ def main():
         try:
             with Pool(processes=2) as pool:
                 pool.starmap(func=run_cmd, iterable=[(red_cmd, pargs.output + "/red"), (blue_cmd, pargs.output + "/blue")])
+                pool.close()
+                pool.join()
             alert_RTI(cfg, datetime.now().strftime("%Y%m%d"))
         except Exception as e:
             print('Error running command: ' + str(e))
