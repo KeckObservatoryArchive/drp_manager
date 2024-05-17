@@ -52,9 +52,9 @@ def generate_pypeit_files(pargs, setup, cfg):
         is_ir = True
 
     # Run the setup
-    ps.run(setup_only=True, calibration_check=False, sort_dir=setup_dir,
-           obslog=True, write_bkg_pairs=is_ir)
-
+    # ps.run(setup_only=True, calibration_check=False, sort_dir=setup_dir,
+    #        obslog=True, write_bkg_pairs=is_ir)
+    ps.run(setup_only = True, clean_config = True)
     # Save the setup to .pypeit files
     # ps.fitstbl.write_pypeit(setup_dir, configs='all', write_bkg_pairs=is_ir)
     pypeit_files = ps.fitstbl.write_pypeit(output_path=setup_dir,
@@ -123,10 +123,12 @@ def alert_RTI(directory, pargs, cfg):
             res = requests.get(url,
                                params = data, 
                                auth = (cfg['RTI']['user'], cfg['RTI']['pass']))
-            print(f"Sending {res.request.url}")
+            print(f"Sent {res.request.url}")
+            print(f"Response:\n{res.text}")
         except requests.exceptions.RequestException as e:
             print(f"Error caught while posting to {url}:")
             print(e)
+            print("Continuing without alerting RTI")
             return None
         return res
     
@@ -307,7 +309,7 @@ def main():
         with Pool(processes=num) as pool:
             pool.starmap(func=run_pypeit_helper, iterable=args)
     
-        print("Reduction complete!")
+    print(f"Finished reductions at {datetime.now()} HST")
 
 if __name__ == '__main__':
     main()
