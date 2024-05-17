@@ -1,5 +1,6 @@
 #!/bin/sh
 
+echo "Script launched at $(date)"
 DATE=`date -u '+%Y%m%d'`
 INSTRUMENT=`echo $1 | tr '[a-z]' '[A-Z]'`
 PYPEIT_VERSION="pypeit"
@@ -39,6 +40,10 @@ then
 fi
 if [ "$RUN" ]
 then
+  echo "Input Data Directory: /koadata/$INSTRUMENT/$DATE/lev0"
+  echo "Output Data Directory: $OUTPUTDIR/${INSTRUMENT}_DRP/$DATE"
+  echo "PypeIt Version: $PYPEIT_VERSION"
+  echo "PATH: $PATH"
   cd /drp/manager/default/pypeit_scripts
   python pypeit_lev2.py $INSTRUMENT -i /koadata/$INSTRUMENT/$DATE/lev0 -r $PREFIX -o $OUTPUTDIR/${INSTRUMENT}_DRP/$DATE -n 10 $CALIB
 fi
