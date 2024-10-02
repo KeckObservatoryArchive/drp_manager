@@ -1,0 +1,14 @@
+[cmd]
+cmd_path = /path/to/start_kcwi_rti
+[lev1]
+red_cmd =  -r -d DIRECTORY -i KR*.fits -c DRP_CONFIG --rti-cfg RTI_CONFIG --rti-ingesttype lev1 -wWm
+blue_cmd = -b -d DIRECTORY -i KB*.fits -c DRP_CONFIG --rti-cfg RTI_CONFIG --rti-ingesttype lev1 -wWm
+[lev2]
+red_cmd = -r -d DIRECTORY -i KR*.fits -c DRP_CONFIG --rti-cfg RTI_CONFIG --rti-ingesttype lev2 -g
+blue_cmd = -b -d DIRECTORY -i KB*.fits -c DRP_CONFIG --rti-cfg RTI_CONFIG --rti-ingesttype lev2 -g
+[rti]
+url = 
+rti_user = 
+rti_pass = 
+rti_testonly = True
+rti_dev = True
