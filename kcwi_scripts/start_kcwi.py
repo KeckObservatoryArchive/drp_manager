@@ -65,8 +65,8 @@ def alert_RTI(cfg, date):
         'instrument': "KCWI",
         'ingesttype': "lev2",
         'utdate' : date,
-        'testonly': "true",
-        'dev': "true"
+        'testonly': cfg.getboolean('rti', 'rti_testonly'),
+        'dev': cfg.getboolean('rti', 'rti_dev')
     }
     
     try:
@@ -132,10 +132,10 @@ def main():
             print('Error running command: ' + str(e))
     else: # lev1
         try:
-            run_cmd(red_cmd, pargs.output + "/red")
-            run_cmd(blue_cmd, pargs.output + "/blue")
-            # subprocess.Popen(red_cmd.split(" "), stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT, cwd=pargs.output + "/red")
-            # subprocess.Popen(blue_cmd.split(" "), stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT, cwd=pargs.output + "/blue")
+            # run_cmd(red_cmd, pargs.output + "/red")
+            # run_cmd(blue_cmd, pargs.output + "/blue")
+            subprocess.Popen(red_cmd.split(" "), stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT, cwd=pargs.output + "/red")
+            subprocess.Popen(blue_cmd.split(" "), stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT, cwd=pargs.output + "/blue")
         except Exception as e:
             print('Error running command: ' + str(e))
 
