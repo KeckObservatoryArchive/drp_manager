@@ -1,12 +1,13 @@
 #!/bin/sh
-
 echo "Script launched at $(date)"
 DATE=`date -u '+%Y%m%d'`
 INSTRUMENT=`echo $1 | tr '[a-z]' '[A-Z]'`
-PYPEIT_VERSION="pypeit"
 if [ $# -ge 2 ] && [ "$2" != "--calibonly" ]
 then
     PYPEIT_VERSION="pypeit_$2"
+fi
+if [ ! -d "$HOME/.conda/envs/$PYPEIT_VERSION/bin" ]; then
+	echo "No conda environment matching $PYPEIT_VERSION found!"
 fi
 export PATH=$HOME/.conda/envs/$PYPEIT_VERSION/bin:/usr/sbin:/usr/bin:/sbin:/bin
 LEV0DATA="/koadata/$INSTRUMENT/$DATE/lev0"
@@ -22,6 +23,10 @@ case $INSTRUMENT in
     ;;
   NIRES)
     PREFIX='NR.'
+    OUTPUTDIR='/k2drpdata'
+    ;;
+  ESI)
+    PREFIX='ES.'
     OUTPUTDIR='/k2drpdata'
     ;;
   *)
