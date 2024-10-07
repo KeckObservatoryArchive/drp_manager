@@ -31,8 +31,11 @@ def generate_pypeit_files(pargs, setup, cfg):
         Should be the output from get_parsed_args()
     """     
 
-    setup_dir = os.path.join(pargs.output, "pypeit_files")
-    root = os.path.join(pargs.input, pargs.root)
+    setup_dir = Path(pargs.output).absolute() / "pypeit_files"
+    if not setup_dir.exists():
+        setup_dir.mkdir(parents=True)
+    root = Path(pargs.input) / pargs.root
+    root = str(root)
 
     print(f'Looking for files matching {root}*.fits*')
     print(f'Outputs will be saved in {setup_dir}')
@@ -40,8 +43,8 @@ def generate_pypeit_files(pargs, setup, cfg):
     # Create the setup object
     ps = setup.from_file_root(root, pargs.pypeit_name,
                                     extension=".fits")
-    ps.user_cfg = ['[rdx]', 'ignore_bad_headers = True']
-    if "deimos" in pargs.inst and deimos_det_5_is_bad:
+    ps.user_cfg += ['ignore_bad_headers = True']
+    if "deimos" in pargs.inst.lower() and deimos_det_5_is_bad:
         ps.user_cfg += [f'detnum = {deimos_detnum}']
 
     # If the instrument is IR, use the -b flag (write_bkg_pairs=True)
@@ -58,6 +61,7 @@ def generate_pypeit_files(pargs, setup, cfg):
     # Save the setup to .pypeit files
     # ps.fitstbl.write_pypeit(setup_dir, configs='all', write_bkg_pairs=is_ir)
     pypeit_files = ps.fitstbl.write_pypeit(output_path=setup_dir,
+                                           cfg_lines=ps.user_cfg,
                                            write_bkg_pairs=is_ir,
                                            configs='all',
                                            version_override=None,
@@ -81,13 +85,13 @@ def run_pypeit_helper(pypeit_file, pargs, cfg):
     print(f"Processing config from {str(pypeit_file)}")
 
     # Open file to dump logs into
-    logname = os.path.splitext(pypeit_file)[0] + '.log'
-    logpath = os.path.join(pargs.output, logname)
+    logpath = os.path.splitext(pypeit_file)[0] + '.log'
+    # logpath = os.path.join(pargs.output, logname)
     f = open(logpath, 'w+')
     
     # Get full output path
-    outputs = os.path.join(pargs.output, os.path.splitext(pypeit_file)[0])
-    
+    #outputs = os.path.join(pargs.output, os.path.splitext(pypeit_file)[0])
+    outputs = os.path.splitext(pypeit_file)[0]
     # Run the reduction in a subprocess
     args = ['run_pypeit']
     args += [pypeit_file]
@@ -135,7 +139,6 @@ def alert_RTI(directory, pargs, cfg):
     # data_directory = pargs.output + "/pypeit_files"
     
     print(f"Alerting RTI that {directory} is ready for ingestion")
-
     url = cfg['RTI']['url']
 
     data = {
@@ -149,7 +152,7 @@ def alert_RTI(directory, pargs, cfg):
         'dev': cfg['RTI']['rti_dev']
     }
     
-   
+    print({section: dict(cfg[section]) for section in cfg.sections()})
     res = get_url(url, data)
     
 
