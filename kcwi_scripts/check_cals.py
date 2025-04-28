@@ -18,7 +18,7 @@ def check_cals(color, cron=False):
     p = sp.Popen(full_cmd, shell=True, stdout=sp.PIPE, stderr=sp.PIPE, text=True)
     p.wait()
     (err, output) = p.communicate()
-    return output
+    return err, output
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Check KCWI calibrations")
