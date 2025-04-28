@@ -2,7 +2,7 @@
 
 import argparse
 import datetime as dt
-from os import system
+import subprocess as sp
 
 def check_cals(color):
     files = {"blue":"KB", "red":"KR"}
@@ -13,8 +13,10 @@ def check_cals(color):
     config   = "/k2drpdata/KCWI_DRP/configs/kcwi_lev1.cfg"
     files    = f"/koadata/KCWI/{utdate}/lev0/{files[color]}*.fits"
     full_cmd = f"{cmd} -c {config} {files}"
-    print(full_cmd)
-    system(full_cmd)
+    p = sp.Popen(full_cmd, shell=True, stdout=sp.PIPE, stderr=sp.PIPE, text=True)
+    p.wait()
+    (err, output) = p.communicate()
+    return output
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Check KCWI calibrations")
@@ -25,4 +27,6 @@ if __name__ == "__main__":
         print("Parameter value must be blue or red")
         exit()
 
-    check_cals(args.color)
+    output = check_cals(args.color)
+    print(output)
+
