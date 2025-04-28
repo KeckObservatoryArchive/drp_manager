@@ -4,7 +4,7 @@ import argparse
 import datetime as dt
 import subprocess as sp
 
-def check_cals(color):
+def check_cals(color, cron=False):
     files = {"blue":"KB", "red":"KR"}
 
     utdate = dt.datetime.utcnow().strftime("%Y%m%d")
@@ -13,6 +13,8 @@ def check_cals(color):
     config   = "/k2drpdata/KCWI_DRP/configs/kcwi_lev1.cfg"
     files    = f"/koadata/KCWI/{utdate}/lev0/{files[color]}*.fits"
     full_cmd = f"{cmd} -c {config} {files}"
+    if cron:
+        full_cmd += " -a"
     p = sp.Popen(full_cmd, shell=True, stdout=sp.PIPE, stderr=sp.PIPE, text=True)
     p.wait()
     (err, output) = p.communicate()
