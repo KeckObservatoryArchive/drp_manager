@@ -1,10 +1,10 @@
 user_cfg : {
+    rdx: {
+        ignore_bad_headers : 'True',
+    },
     calibrations : {
         flatfield : {
             saturated_slits : 'mask'
-        },
-        slitedges : {
-            edge_thresh : 15
         }
     }
 }

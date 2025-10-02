@@ -1,6 +1,7 @@
 user_cfg : {
     rdx: {
-        detnum : '1,(2,6),(3,7),(4,8)'
+        detnum : '1,(2,6),(3,7),(4,8)',
+        ignore_bad_headers : True
     },
     calibrations : {
         flatfield : {
