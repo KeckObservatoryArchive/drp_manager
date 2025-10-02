@@ -12,6 +12,6 @@ user_cfg : {
 fits_table_thresholds : {
 }
 
-# allowed_keywords : {
-#     filter2 : 'NIRSPEC-1,NIRSPEC-3'
-# }
+allowed_keywords : {
+    lampstat01 : 'off,on' # Don't use arcs (Ne or Ar)
+}
