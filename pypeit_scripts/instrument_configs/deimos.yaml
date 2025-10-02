@@ -1,0 +1,17 @@
+user_cfg : {
+    rdx: {
+        detnum : '1,(2,6),(3,7),(4,8)'
+    },
+    calibrations : {
+        flatfield : {
+            saturated_slits : 'mask'
+        }
+    }
+}
+
+fits_table_thresholds : {
+}
+
+# allowed_keywords : {
+#     filter2 : 'NIRSPEC-1,NIRSPEC-3'
+# }

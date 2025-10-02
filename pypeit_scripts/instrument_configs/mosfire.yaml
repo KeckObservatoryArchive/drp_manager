@@ -1,0 +1,14 @@
+user_cfg : {
+    calibrations : {
+        flatfield : {
+            saturated_slits : 'mask'
+        }
+    }
+}
+
+fits_table_thresholds : {
+}
+
+# allowed_keywords : {
+#     filter2 : 'NIRSPEC-1,NIRSPEC-3'
+# }
