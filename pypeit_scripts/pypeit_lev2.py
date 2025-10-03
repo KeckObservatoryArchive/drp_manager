@@ -1,27 +1,19 @@
-from copy import copy
-from datetime import datetime
-from pathlib import Path
 import os
 import sys
 import requests
+from copy import copy
+from datetime import datetime
+from pathlib import Path
 from multiprocessing import Pool
 from argparse import ArgumentParser
-from configparser import ConfigParser
-import yaml
 import subprocess
+
+import yaml
 import numpy as np
-
-###
-#### Bad Deimos detector. Temporary until this stops changing all the time.
-###
-
-deimos_det_5_is_bad = True
-deimos_detnum = "1,(2,6),(3,7),(4,8)"
 
 ###
 ##### PypeIt Stuff
 ###
-
 
 def generate_pypeit_files(pargs, setup, cfg):   
     """Creates the a .pypeit file for every configuration identified in the
@@ -49,9 +41,6 @@ def generate_pypeit_files(pargs, setup, cfg):
     # If the instrument is IR, use the -b flag (write_bkg_pairs=True)
     is_ir = cfg['INSTRUMENTS'][pargs.inst]['ir']
 
-    # Run the setup
-    ps.run(setup_only = True, clean_config = True)
-
     # Handle any instrument-specific configuration
     inst_config = Path(__file__).parent / 'instrument_configs' / f'{str(pargs.inst).lower()}.yaml'
     if inst_config.exists():
@@ -60,13 +49,14 @@ def generate_pypeit_files(pargs, setup, cfg):
             cfg_inst = yaml.safe_load(f)
         handle_instrument_config(cfg_inst, ps)
     else:
-        print(f"No instrument-specific configuration found for {pargs.inst}")
+        print(f"No instrument-specific configuration found for {pargs.inst} at {inst_config}")
         print("Exiting...")
         sys.exit(1)
 
+    # Run the setup
+    ps.run(setup_only = True, clean_config = True)
+
     # Save the setup to .pypeit files
-    import pprint
-    pprint.pprint(ps.user_cfg)
     pypeit_files = ps.fitstbl.write_pypeit(output_path=setup_dir,
                                            cfg_lines=ps.user_cfg,
                                            write_bkg_pairs=is_ir,
@@ -87,19 +77,26 @@ def handle_instrument_config(cfg, ps):
 
     # If there are any allowed keywords, keep only those files in the table
     if 'allowed_keywords' in cfg:
+
+        # Create a total mask to keep track of which rows to keep (all False to start)
         total_mask = np.zeros(len(ps.fitstbl), dtype=bool)
+        
         for key in cfg['allowed_keywords']:
             allowed_values = cfg['allowed_keywords'][key].split(',')
             # create a mask to store which rows to keep
             for value in allowed_values:
+                # Where the a column value matches the allowed value, keep it
                 mask = ps.fitstbl[key] == value
                 if mask.any():
+                    # Update the total mask
                     total_mask |= mask
         
         print("Removing the following files:")
         for i, row in enumerate(ps.fitstbl):
             if not total_mask[i]:
                 print(f"    {row['filename']} because {key} = {row[key]}")
+        
+        # Apply the total mask to the fitstbl
         ps.fitstbl = ps.fitstbl[total_mask]
         if len(ps.fitstbl) == 0:
             print("No files left after applying allowed_keywords. Exiting...")
@@ -117,39 +114,48 @@ def handle_instrument_config(cfg, ps):
             print(f"Combining like values in {key} within {difference}")
             combine_like_values(ps.fitstbl, key, difference)
 
+
 def get_user_lines_from_dict(cfg_dict, lines = [], bracket_level=1):
     """Converts a dictionary of configuration parameters into a list of strings
-    that can be added to a PypeItSetup object.
+    that can be added to a PypeItSetup object. This is done recursively to
+    handle nested dictionaries.
+
+    The rdx section is handled specially, as it is always present at the top
+    level of the user_cfg section and we don't want to duplicate it.
 
     Parameters
     ----------
     cfg_dict : dict
-        Dictionary of configuration parameters.
-
-    Returns
-    -------
-    list
-        List of strings in the format "key = value"
+        The dictionary of configuration parameters.
+    lines : list, optional
+        The list of strings to append to. Default is an empty list.
+    bracket_level : int, optional
+        The current level of brackets to use. Default is 1.
     """
 
     for key in cfg_dict:
+
+        # Handle rdx section specially
         if key == 'rdx':
-            print("Special handling of rdx")
+            # For each key in the rdx section, add it to the lines immediately
             for rdx_key in cfg_dict['rdx']:
                 line = f"{rdx_key} = {cfg_dict['rdx'][rdx_key]}"
                 lines.append(line)
             continue
-        if isinstance(cfg_dict[key], dict):
 
+        # If the value is a dictionary, recurse
+        if isinstance(cfg_dict[key], dict):
             pre_brackets = '[' * bracket_level
             post_brackets = ']' * bracket_level
             lines.append(f"{pre_brackets}{key}{post_brackets}")
             get_user_lines_from_dict(cfg_dict[key], lines, bracket_level + 1)
+        # If the value isn't a dictionary, it's a parameter, so add it
         else:
             line = f"{key} = {cfg_dict[key]}"
             lines.append(line)
 
     return lines
+
 
 def combine_like_values(tbl, colname, difference):
     """Combines values in a table column that should be considered the same.
@@ -172,12 +178,13 @@ def combine_like_values(tbl, colname, difference):
     tbl.sort(colname)
 
     for i, value in enumerate(tbl[colname]):
-        # Skip the first one
+        # Skip the first one, as there's no previous value to compare to
         if i == 0:
             continue
         # If the value is within difference of the previous value, set it to the previous value
         if abs(value - tbl[colname][i - 1]) < difference:
             tbl[colname][i] = tbl[colname][i - 1]
+
 
 def run_pypeit_helper(pypeit_file, pargs, cfg):
     """Runs a PypeIt reduction off of a specific .pypeit file, using the io
@@ -186,8 +193,8 @@ def run_pypeit_helper(pypeit_file, pargs, cfg):
     The reduction is launched in a subprocess using the subprocess library, with
     stdout and stderr directed to a single log file.
 
-    This should ultimately be changed to use PypeIt's internal functions directly,
-    but this is easier for now.
+    This should ultimately be changed to invoke PypeIt directly, as argument
+    injection is a security risk.
 
     Parameters
     ----------
@@ -235,6 +242,22 @@ def run_pypeit_helper(pypeit_file, pargs, cfg):
 
 
 def alert_RTI(directory, pargs, cfg):
+    """Alerts the RTI system that a directory is ready for ingestion.
+
+    Parameters
+    ----------
+    directory : str
+        The directory that is ready for ingestion.
+    pargs : Namespace
+        The parsed command line arguments.
+    cfg : dict
+        The configuration dictionary.
+    
+    Returns
+    -------
+    response : requests.Response or None
+        The response from the RTI server, or None if there was an error.
+    """
 
     def get_url(url, data):
         try:
@@ -272,6 +295,18 @@ def alert_RTI(directory, pargs, cfg):
 ###
 
 def get_config(cfg_file):
+    """Reads in the configuration file and returns a dictionary of the
+    configuration parameters.
+    Parameters
+    ----------
+    cfg_file : str or pathlike
+        The path to the configuration file.
+    
+    Returns
+    -------
+    cfg : dict
+        The configuration parameters.
+    """
 
     with open(cfg_file) as f:
             cfg = yaml.safe_load(f)
@@ -295,7 +330,7 @@ def get_parsed_args():
     default_input = os.getcwd()
     default_output = os.path.join(default_input, "redux")
 
-    parser.add_argument('inst', help='Instrument choice. ' + 
+    parser.add_argument('inst', default="", help='Instrument choice. ' + 
                         'To see availble instruments, use --instrument-options')
 
     parser.add_argument('-i', '--input-dir', dest='input', 
@@ -332,7 +367,15 @@ def get_parsed_args():
 
     return pargs
 
+
 def print_inst_options(cfg):
+    """Prints the available instrument options from the configuration file.
+    Parameters
+    ----------
+    cfg : dict
+        The configuration parameters.
+    """
+    
     inst_options = "', ".join(cfg['INSTRUMENTS'].keys())
     print(f"Options are: '{inst_options}'")
 
@@ -352,7 +395,7 @@ def main():
     # Get configuration
     cfg = get_config(pargs.cfg_file)
 
-    if pargs.opts:
+    if pargs.opts or pargs.inst == "":
         print_inst_options(cfg)
         sys.exit(0)
 
