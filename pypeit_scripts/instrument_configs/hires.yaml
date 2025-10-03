@@ -10,8 +10,8 @@ user_cfg : {
 }
 
 fits_table_thresholds : {
-    echangle : 1,
-    xdangle : 1
+    echangle : .01,
+    xdangle : .01
 }
 
 # allowed_keywords : {
