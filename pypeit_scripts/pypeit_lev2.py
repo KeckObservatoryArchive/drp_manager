@@ -38,6 +38,9 @@ def generate_pypeit_files(pargs, setup, cfg):
     ps = setup.from_file_root(root, pargs.pypeit_name,
                                     extension=".fits")
 
+    # Run the setup
+    ps.run(setup_only = True, clean_config = True)
+
     # If the instrument is IR, use the -b flag (write_bkg_pairs=True)
     is_ir = cfg['INSTRUMENTS'][pargs.inst]['ir']
 
@@ -53,8 +56,6 @@ def generate_pypeit_files(pargs, setup, cfg):
         print("Exiting...")
         sys.exit(1)
 
-    # Run the setup
-    ps.run(setup_only = True, clean_config = True)
 
     # Save the setup to .pypeit files
     pypeit_files = ps.fitstbl.write_pypeit(output_path=setup_dir,
