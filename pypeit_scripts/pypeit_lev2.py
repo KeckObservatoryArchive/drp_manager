@@ -76,7 +76,7 @@ def generate_pypeit_files(pargs, setup, cfg):
         print(f"Renaming LRIS configs to include {prefix} prefix")
         # Each entry looks like /path/to/output/keck_lris_A/keck_lris_A.pypeit
         for pypeit_file_name in pypeit_files:
-            config_name = pypeit_file_name[-1]
+            config_name = pypeit_file_name.split('.pypeit')[0][-1]
             pypeit_file = Path(pypeit_file_name)
             new_file_path = pypeit_file.parent.parent / f"{pargs.pypeit_name}_{prefix}{config_name}" / f"{pargs.pypeit_name}_{prefix}{config_name}.pypeit"
             # Move the file to the new location
