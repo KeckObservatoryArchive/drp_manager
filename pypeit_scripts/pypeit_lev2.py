@@ -301,13 +301,13 @@ def alert_RTI(directory, pargs, cfg):
         'instrument': pargs.inst,
         'ingesttype': cfg['RTI']['rti_ingesttype'],
         'datadir': str(directory),
-        'start': str(cfg.start_time),
+        'start': str(cfg['start_time']),
         'reingest': cfg['RTI']['rti_reingest'],
         'testonly': cfg['RTI']['rti_testonly'],
         'dev': cfg['RTI']['rti_dev']
     }
     
-    print({section: dict(cfg[section]) for section in cfg.sections()})
+    #print({section: dict(cfg[section]) for section in cfg.sections()})
     res = get_url(url, data)
     
 
