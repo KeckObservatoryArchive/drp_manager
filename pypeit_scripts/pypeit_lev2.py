@@ -64,6 +64,26 @@ def generate_pypeit_files(pargs, setup, cfg):
                                            configs='all',
                                            version_override=None,
                                            date_override=None)
+
+    # If we're using LRIS, add a "B" or "R" to the config name
+    if 'lris' in pargs.pypeit_name:
+        if len(pypeit_files) > 26:
+            print("Unable to parse configuration names for more than 26 LRIS configs")
+            print("Exiting...")
+            sys.exit(1)
+        # Get the red/blue prefix:
+        prefix = "B" if 'blue' in pargs.pypeit_name else "R"
+        print(f"Renaming LRIS configs to include {prefix} prefix")
+        # Each entry looks like /path/to/output/keck_lris_A/keck_lris_A.pypeit
+        for pypeit_file_name in pypeit_files:
+            config_name = pypeit_file_name[-1]
+            pypeit_file = Path(pypeit_file_name)
+            new_file_path = pypeit_file.parent.parent / f"{pargs.pypeit_name}_{prefix}{config_name}" / f"{pargs.pypeit_name}_{prefix}{config_name}.pypeit"
+            # Move the file to the new location
+            new_file_path.parent.mkdir(parents=True, exist_ok=True)
+            pypeit_file.rename(new_file_path)
+            print(f"Renamed {pypeit_file} to {new_file_path}")
+
 def handle_instrument_config(cfg, ps):
     """Adds user parameters from the config file to the PypeItSetup object.
     This modifies the PypeItSetup object in place.
@@ -407,17 +427,31 @@ def main():
         sys.exit(0)
     
     # Get PypeIt's instrument name
-    pargs.pypeit_name = cfg['INSTRUMENTS'][pargs.inst]['pypeit_name']
+    pypeit_name = cfg['INSTRUMENTS'][pargs.inst]['pypeit_name']
 
     # If no root is specified, get it from the instruments list
     if pargs.root is None:
         pargs.root = cfg['INSTRUMENTS'][pargs.inst]['root']
 
+    roots = pargs.root if isinstance(pargs.root, list) else [pargs.root]
 
-    # Create all the pypeit files
-    generate_pypeit_files(pargs, PypeItSetup, cfg)
+    # If we're using a multi-arm instrument (i.e. LRIS, although some day maybe
+    # pypeit KCWI/KCRM), we need to reduce the red and blue sides separately, 
+    # so we need to make pypeit_name a list
+    if not isinstance(pypeit_name, list):
+        pypeit_name = [pypeit_name]
+    
+    if not isinstance(pargs.root, list):
+        roots = [pargs.root]
+
+    for i, spectrograph_name in enumerate(pypeit_name):
+        pargs.pypeit_name = spectrograph_name
+        pargs.root = roots[i]
+        # Create all the pypeit files
+        generate_pypeit_files(pargs, PypeItSetup, cfg)
     
     setup_files = Path(pargs.output) / 'pypeit_files'
+
     # Select only the pypeit files that are for an instrument configuration
     pypeit_files = list(setup_files.rglob(f'{pargs.pypeit_name}_?.pypeit'))
             

@@ -21,8 +21,8 @@ INSTRUMENTS : {
     ir : False
   },
   LRIS : {
-    pypeit_name : keck_lris_red_mark4,
-    root : LR.,
+    pypeit_name : [keck_lris_red_mark4,keck_lris_blue],
+    root : [LR.,LB.],
     ir : False
   },
   NIRSPEC : {
