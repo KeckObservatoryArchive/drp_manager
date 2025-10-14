@@ -460,7 +460,7 @@ def main():
     setup_files = Path(pargs.output) / 'pypeit_files'
 
     # Select only the pypeit files that are for an instrument configuration
-    pypeit_files = list(setup_files.rglob(f'keck_?.pypeit'))
+    pypeit_files = list(setup_files.rglob(f'keck_*.pypeit'))
             
     args = []
 
