@@ -65,24 +65,31 @@ def generate_pypeit_files(pargs, setup, cfg):
                                            version_override=None,
                                            date_override=None)
 
+
+    # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+    # The following is commented out until we have a need for it. If this     #
+    # script is used to process different sets of data with the same          # 
+    # spectrograph, the config names will collide.                            #
+    # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+    
     # If we're using LRIS, add a "B" or "R" to the config name
-    if 'lris' in pargs.pypeit_name:
-        if len(pypeit_files) > 26:
-            print("Unable to parse configuration names for more than 26 LRIS configs")
-            print("Exiting...")
-            sys.exit(1)
-        # Get the red/blue prefix:
-        prefix = "B" if 'blue' in pargs.pypeit_name else "R"
-        print(f"Renaming LRIS configs to include {prefix} prefix")
-        # Each entry looks like /path/to/output/keck_lris_A/keck_lris_A.pypeit
-        for pypeit_file_name in pypeit_files:
-            config_name = pypeit_file_name.split('.pypeit')[0][-1]
-            pypeit_file = Path(pypeit_file_name)
-            new_file_path = pypeit_file.parent.parent / f"{pargs.pypeit_name}_{prefix}{config_name}" / f"{pargs.pypeit_name}_{prefix}{config_name}.pypeit"
-            # Move the file to the new location
-            new_file_path.parent.mkdir(parents=True, exist_ok=True)
-            pypeit_file.rename(new_file_path)
-            print(f"Renamed {pypeit_file} to {new_file_path}")
+    # if 'lris' in pargs.pypeit_name:
+    #     if len(pypeit_files) > 26:
+    #         print("Unable to parse configuration names for more than 26 LRIS configs")
+    #         print("Exiting...")
+    #         sys.exit(1)
+    #     # Get the red/blue prefix:
+    #     prefix = "B" if 'blue' in pargs.pypeit_name else "R"
+    #     print(f"Renaming LRIS configs to include {prefix} prefix")
+    #     Each entry looks like /path/to/output/keck_lris_A/keck_lris_A.pypeit
+    #     for pypeit_file_name in pypeit_files:
+    #         config_name = pypeit_file_name.split('.pypeit')[0][-1]
+    #         pypeit_file = Path(pypeit_file_name)
+    #         new_file_path = pypeit_file.parent.parent / f"{pargs.pypeit_name}_{prefix}{config_name}" / f"{pargs.pypeit_name}_{prefix}{config_name}.pypeit"
+    #         # Move the file to the new location
+    #         new_file_path.parent.mkdir(parents=True, exist_ok=True)
+    #         pypeit_file.rename(new_file_path)
+    #         print(f"Renamed {pypeit_file} to {new_file_path}")
 
 def handle_instrument_config(cfg, ps):
     """Adds user parameters from the config file to the PypeItSetup object.
@@ -453,7 +460,7 @@ def main():
     setup_files = Path(pargs.output) / 'pypeit_files'
 
     # Select only the pypeit files that are for an instrument configuration
-    pypeit_files = list(setup_files.rglob(f'{pargs.pypeit_name}_?.pypeit'))
+    pypeit_files = list(setup_files.rglob(f'keck_?.pypeit'))
             
     args = []
 
