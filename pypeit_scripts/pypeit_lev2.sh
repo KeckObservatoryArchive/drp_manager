@@ -1,7 +1,11 @@
 #!/bin/sh
 echo "Script launched at $(date)"
+# DATE is the current UT date
 DATE=`date -u '+%Y%m%d'`
+DATE="20250228"
+# INSTRUMENT is passed in on the command line
 INSTRUMENT=`echo $1 | tr '[a-z]' '[A-Z]'`
+# Determine the path to the conda environment and update PATH
 if [ $# -ge 2 ] && [ "$2" != "--calibonly" ]
 then
     PYPEIT_VERSION="pypeit_$2"
@@ -10,39 +14,28 @@ if [ ! -d "$HOME/.conda/envs/$PYPEIT_VERSION/bin" ]; then
 	echo "No conda environment matching $PYPEIT_VERSION found!"
 fi
 export PATH=$HOME/.conda/envs/$PYPEIT_VERSION/bin:/usr/sbin:/usr/bin:/sbin:/bin
+# Where the raw data is
 LEV0DATA="/koadata/$INSTRUMENT/$DATE/lev0"
-RUN=true
-case $INSTRUMENT in
-  DEIMOS)
-    PREFIX='DE.'
-    OUTPUTDIR='/k2drpdata'
-    ;;
-  MOSFIRE)
-    PREFIX='MF.'
-    OUTPUTDIR='/k1drpdata'
-    ;;
-  NIRES)
-    PREFIX='NR.'
-    OUTPUTDIR='/k2drpdata'
-    ;;
-  ESI)
-    PREFIX='ES.'
-    OUTPUTDIR='/k2drpdata'
-    ;;
-  *)
-    RUN=false
-    ;;
-esac
+# By default, don't continue
+RUN=false
+# Make sure the instrument directory exists, if so, then continue
+OUTPUTDIR=`ls -d /k*drpdata/${INSTRUMENT}_DRP`
+STATUS=$?
+if [ "$STATUS" -eq "0" ]; then
+    RUN=true
+fi
 if [ ! -d $LEV0DIR ]
 then
   echo "No lev0 data found in $LEV0DATA"
   RUN=false
 fi      
+# Determine if this is a calibration only run
 CALIB=''
 if [ "$2" = "--calibonly" ] || [ "$3" = "--calibonly" ]
 then
     CALIB="--calibonly"
 fi
+# Start PypeIt
 if [ "$RUN" ]
 then
   echo "Input Data Directory: /koadata/$INSTRUMENT/$DATE/lev0"
@@ -50,5 +43,6 @@ then
   echo "PypeIt Version: $PYPEIT_VERSION"
   echo "PATH: $PATH"
   cd /drp/manager/default/pypeit_scripts
-  python pypeit_lev2.py $INSTRUMENT -i /koadata/$INSTRUMENT/$DATE/lev0 -r $PREFIX -o $OUTPUTDIR/${INSTRUMENT}_DRP/$DATE -n 10 $CALIB
+#  python pypeit_lev2.py $INSTRUMENT -i /koadata/$INSTRUMENT/$DATE/lev0 -r $PREFIX -o $OUTPUTDIR/${INSTRUMENT}_DRP/$DATE -n 10 $CALIB
+  python pypeit_lev2.py $INSTRUMENT -i /koadata/$INSTRUMENT/$DATE/lev0 -o $OUTPUTDIR/$DATE -n 10 $CALIB
 fi
