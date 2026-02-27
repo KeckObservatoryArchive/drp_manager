@@ -4,17 +4,49 @@
 # For each, add the appropriate mosaic parameter
 # Execute PypeIt on the 4 files in parallel
 
-import sys
+import argparse
+import datetime as dt
 from pathlib import Path
 import subprocess
+from socket import gethostname
 import os
 
 from pypeit.scripts.setup import Setup
 
-# Run the normal PypeIt Setup:
+# The current UT date for use in directories
+utdate = dt.datetime.now(dt.timezone.utc).strftime("%Y%m%d")
 
-spectrograph = sys.argv[1]
-file_root = sys.argv[2]
+# The default output directory if a drpserver
+output_dirs = ["k1drpserver", "k2drpserver", "hqdrpserver"]
+hostname = gethostname()
+output_default = "."
+if hostname in output_dirs:
+    output_default = f"/{hostname[:2]}drpdata"
+
+parser = argparse.ArgumentParser(
+    description="Run PypeIt on the calibration files for quicklook purposes.")
+parser.add_argument("spectrograph", type=str, 
+                    help="The PypeIt spectrograph name, e.g. 'keck_deimos'")
+parser.add_argument("--file_root", type=str, default=None,
+                    help="Location of the calibration files (default /koadata)")
+parser.add_argument("--output", type=str, default=output_default, 
+                    help="Output directory for reduced files (default /drpdata)")
+args = parser.parse_args()
+
+spectrograph = args.spectrograph#sys.argv[1]
+file_root = args.file_root#sys.argv[2]
+output = f"{args.output}/pypeit_ql_cals/{spectrograph}/{utdate}"
+
+# Default to koadata
+if file_root is None:
+    instrument = spectrograph.split("_")[1].upper()
+    file_root = f"/koadata/{instrument}/{utdate}/lev0"
+
+print("Spectrograph:", spectrograph)
+print("File root:", file_root)
+print("Output directory:", output)
+
+# Run the normal PypeIt Setup:
 
 QL_lines = [
 "detnum\n"
@@ -35,7 +67,8 @@ Setup.main(Setup.parse_args(['-s', spectrograph, '-r', file_root, '-c', 'all']))
 # Each setup is in a directory that looks like "[spectrograph]_[A]"
 # Get the path to the setup files
 
-setup_dirs = Path.glob(Path.cwd(), f"{spectrograph}_*")
+#setup_dirs = Path.glob(Path.cwd(), f"{spectrograph}_*")
+setup_dirs = Path.glob(output, f"{spectrograph}_*")
 
 # Loop over the directories
 for setup_dir in setup_dirs:
