@@ -40,6 +40,7 @@ file_root = args.file_root
 utdate = args.utdate
 output = f"{args.output}/pypeit_ql_cals/{spectrograph}/{utdate}"
 os.makedirs(output, exist_ok=True)
+os.chdir(output)
 
 # Default to koadata
 if file_root is None:
