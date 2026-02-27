@@ -38,7 +38,7 @@ args = parser.parse_args()
 spectrograph = args.spectrograph
 file_root = args.file_root
 utdate = args.utdate
-output = f"{args.output}/pypeit_ql_cals/{spectrograph}/{utdate}"
+output = Path(args.output) / "pypeit_ql_cals" / spectrograph / utdate
 os.makedirs(output, exist_ok=True)
 os.chdir(output)
 
@@ -73,7 +73,7 @@ Setup.main(Setup.parse_args(['-s', spectrograph, '-r', file_root, '-c', 'all']))
 # Get the path to the setup files
 
 #setup_dirs = Path.glob(Path.cwd(), f"{spectrograph}_*")
-setup_dirs = Path.glob(output, f"{spectrograph}_*")
+setup_dirs = Path(output).glob(f"{spectrograph}_*")
 
 # Loop over the directories
 for setup_dir in setup_dirs:
