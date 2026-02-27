@@ -31,10 +31,13 @@ parser.add_argument("--file_root", type=str, default=None,
                     help="Location of the calibration files (default /koadata)")
 parser.add_argument("--output", type=str, default=output_default, 
                     help="Output directory for reduced files (default /drpdata)")
+parser.add_argument("--utdate", type=str, default=utdate, 
+                    help="UT date to use (YYYYMMDD, default today)")
 args = parser.parse_args()
 
 spectrograph = args.spectrograph
 file_root = args.file_root
+utdate = args.utdate
 output = f"{args.output}/pypeit_ql_cals/{spectrograph}/{utdate}"
 os.makedirs(output, exist_ok=True)
 
