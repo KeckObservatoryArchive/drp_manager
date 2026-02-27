@@ -114,7 +114,8 @@ for setup_dir in setup_dirs:
 
 # Now run the pypeit files in parallel
 # Get the list of pypeit files
-pypeit_files = list(Path.rglob(Path.cwd(), "*.pypeit"))
+#pypeit_files = list(Path.rglob(Path.cwd(), "*.pypeit"))
+pypeit_files = list(Path.rglob(output, "*.pypeit"))
 # starmap over the list of pypeit files
 from multiprocessing import Pool
 
