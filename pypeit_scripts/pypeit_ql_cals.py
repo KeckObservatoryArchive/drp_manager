@@ -33,9 +33,10 @@ parser.add_argument("--output", type=str, default=output_default,
                     help="Output directory for reduced files (default /drpdata)")
 args = parser.parse_args()
 
-spectrograph = args.spectrograph#sys.argv[1]
-file_root = args.file_root#sys.argv[2]
+spectrograph = args.spectrograph
+file_root = args.file_root
 output = f"{args.output}/pypeit_ql_cals/{spectrograph}/{utdate}"
+os.makedirs(output, exist_ok=True)
 
 # Default to koadata
 if file_root is None:
