@@ -93,7 +93,13 @@ for setup_dir in setup_dirs:
     
     with open(pypeit_file, 'w') as f:
         # Write the lines back to the file
-        f.writelines(lines)
+        #f.writelines(lines)
+        for line in lines:
+            if line.startswith("detnum"):
+                if 'deimos' in spectrograph.lower():
+                    f.write(line)
+            else:
+                f.write(line)
     if 'deimos' in spectrograph.lower():
         for j, msc in enumerate(mscs):
             new_file = pypeit_file.parent / (pypeit_file.stem + f"_{j}.pypeit")
