@@ -12,9 +12,12 @@ def check_cals(color, cron=False):
 
     cfg = ConfigParser()
     cfg.read("/drp/manager/default/kcwi_scripts/kcwi.ini")
-
     cmd      = cfg["cmd"]["checkcals_path"]
-    config   = "/drp/manager/default/configs/kcwi_lev1.cfg"
+
+    drp = ConfigParser()
+    drp.read("/drp/manager/default/drp_config.live.ini")
+    config = drp["KCWI"]["CONFIG_LEV1"]
+
     files    = f"/koadata/KCWI/{utdate}/lev0/{files[color]}*.fits"
     full_cmd = f"{cmd} -c {config} {files}"
     if cron:
