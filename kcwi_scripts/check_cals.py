@@ -4,18 +4,18 @@ import argparse
 import datetime as dt
 import subprocess as sp
 from configparser import ConfigParser
+import yaml
 
 def check_cals(color, cron=False):
     files = {"blue":"KB", "red":"KR"}
 
-    utdate = dt.datetime.utcnow().strftime("%Y%m%d")
+    utdate = dt.datetime.now(dt.timezone.utc).strftime("%Y%m%d")
 
     cfg = ConfigParser()
     cfg.read("/drp/manager/default/kcwi_scripts/kcwi.ini")
     cmd      = cfg["cmd"]["checkcals_path"]
 
-    drp = ConfigParser()
-    drp.read("/drp/manager/default/drp_config.live.ini")
+    with open('/drp/manager/default/drp_config.live.ini') as f: drp = yaml.safe_load(f)
     config = drp["KCWI"]["CONFIG_LEV1"]
 
     files    = f"/koadata/KCWI/{utdate}/lev0/{files[color]}*.fits"
