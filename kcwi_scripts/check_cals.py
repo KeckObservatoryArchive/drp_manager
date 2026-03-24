@@ -3,14 +3,21 @@
 import argparse
 import datetime as dt
 import subprocess as sp
+from configparser import ConfigParser
 
 def check_cals(color, cron=False):
     files = {"blue":"KB", "red":"KR"}
 
     utdate = dt.datetime.utcnow().strftime("%Y%m%d")
 
-    cmd      = "/home/kcwidrp/.conda/envs/default/bin/check_cals"
-    config   = "/k2drpdata/KCWI_DRP/configs/kcwi_lev1.cfg"
+    cfg = ConfigParser()
+    cfg.read("/drp/manager/default/kcwi_scripts/kcwi.ini")
+    cmd      = cfg["cmd"]["checkcals_path"]
+
+    drp = ConfigParser()
+    drp.read("/drp/manager/default/drp_config.live.ini")
+    config = drp["KCWI"]["CONFIG_LEV1"]
+
     files    = f"/koadata/KCWI/{utdate}/lev0/{files[color]}*.fits"
     full_cmd = f"{cmd} -c {config} {files}"
     if cron:
