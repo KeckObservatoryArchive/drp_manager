@@ -10,7 +10,6 @@ def check_cals(color, cron=False):
     files = {"blue":"KB", "red":"KR"}
 
     utdate = dt.datetime.now(dt.timezone.utc).strftime("%Y%m%d")
-    utdate = "20260116"
 
     cfg = ConfigParser()
     cfg.read("/drp/manager/default/kcwi_scripts/kcwi.ini")
