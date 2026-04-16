@@ -2,14 +2,19 @@
 echo "Script launched at $(date)"
 DATE=`date -u '+%Y%m%d'`
 INSTRUMENT=`echo $1 | tr '[a-z]' '[A-Z]'`
+
+# Conda environment location
+#ENV="$HOME/.conda/envs"
+ENV="/drp/envs"
+
 if [ $# -ge 2 ] && [ "$2" != "--calibonly" ]
 then
     PYPEIT_VERSION="pypeit_$2"
 fi
-if [ ! -d "$HOME/.conda/envs/$PYPEIT_VERSION/bin" ]; then
+if [ ! -d "$ENV/$PYPEIT_VERSION/bin" ]; then
 	echo "No conda environment matching $PYPEIT_VERSION found!"
 fi
-export PATH=$HOME/.conda/envs/$PYPEIT_VERSION/bin:/usr/sbin:/usr/bin:/sbin:/bin
+export PATH=$ENV/$PYPEIT_VERSION/bin:/usr/sbin:/usr/bin:/sbin:/bin
 LEV0DATA="/koadata/$INSTRUMENT/$DATE/lev0"
 RUN=true
 case $INSTRUMENT in
