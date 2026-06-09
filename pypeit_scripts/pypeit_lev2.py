@@ -11,9 +11,32 @@ import subprocess
 import yaml
 import numpy as np
 
+try:
+    from pypeit.pypeitsetup import PypeItSetup
+    from pypeit.spectrographs.util import load_spectrograph
+except ImportError:
+    print("Could not import PypeIt. Is it installed in this environment?")
+    print("Exiting...")
+    sys.exit(1)
+
 ###
 ##### PypeIt Stuff
 ###
+
+def build_setup_object(pargs, root, cfg_lines):
+    # This is a combination of PypeItSetup.from_file_root and from_rawfiles
+    spec = load_spectrograph(pargs.pypeit_name).__class__
+    files = spec.find_raw_files(root, extension=".fits")
+    nfiles = len(files)
+    if nfiles == 0:
+        print(f'Unable to find any raw files for {spec.name} in {root}!')
+    else:
+        print(f'Found {nfiles} {spec.name} raw files.')
+        
+    cfg_lines = ['[rdx]', f'    spectrograph = {pargs.pypeit_name}'] + cfg_lines
+
+    # Instantiate
+    return PypeItSetup(files, cfg_lines=cfg_lines)
 
 def generate_pypeit_files(pargs, setup, cfg):   
     """Creates the a .pypeit file for every configuration identified in the
@@ -35,8 +58,17 @@ def generate_pypeit_files(pargs, setup, cfg):
     print(f'Outputs will be saved in {setup_dir}')
 
     # Create the setup object
-    ps = setup.from_file_root(root, pargs.pypeit_name,
-                                    extension=".fits")
+    # ps = setup.from_file_root(root, pargs.pypeit_name,
+    #                                 extension=".fits")
+    inst_config = Path(__file__).parent / 'instrument_configs' / f'{str(pargs.inst).lower()}.yaml'
+
+    if inst_config.exists():
+        print(f"Applying instrument-specific configuration from {inst_config}")
+        with open(inst_config) as f:
+            cfg_inst = yaml.safe_load(f)
+            if 'user_cfg' in cfg_inst:
+                lines = get_user_lines_from_dict(cfg_inst['user_cfg'], lines=[])
+    ps = build_setup_object(pargs, root, cfg_lines=lines if lines else [])
 
     # Run the setup
     ps.run(setup_only = True, clean_config = True)
@@ -46,15 +78,15 @@ def generate_pypeit_files(pargs, setup, cfg):
 
     # Handle any instrument-specific configuration
     inst_config = Path(__file__).parent / 'instrument_configs' / f'{str(pargs.inst).lower()}.yaml'
-    if inst_config.exists():
-        print(f"Applying instrument-specific configuration from {inst_config}")
-        with open(inst_config) as f:
-            cfg_inst = yaml.safe_load(f)
-        handle_instrument_config(cfg_inst, ps)
-    else:
-        print(f"No instrument-specific configuration found for {pargs.inst} at {inst_config}")
-        print("Exiting...")
-        sys.exit(1)
+    # if inst_config.exists():
+    #     print(f"Applying instrument-specific configuration from {inst_config}")
+    #     with open(inst_config) as f:
+    #         cfg_inst = yaml.safe_load(f)
+    #     handle_instrument_config(cfg_inst, ps)
+    # else:
+    #     print(f"No instrument-specific configuration found for {pargs.inst} at {inst_config}")
+    #     print("Exiting...")
+    #     sys.exit(1)
 
 
     # Save the setup to .pypeit files
@@ -64,6 +96,35 @@ def generate_pypeit_files(pargs, setup, cfg):
                                            configs='all',
                                            version_override=None,
                                            date_override=None)
+    
+    ps.fitstbl.write_sorted(setup_dir / f"{pargs.inst}.sorted", write_bkg_pairs=is_ir)
+
+
+    # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+    # The following is commented out until we have a need for it. If this     #
+    # script is used to process different sets of data with the same          # 
+    # spectrograph, the config names will collide.                            #
+    # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+    
+    # If we're using LRIS, add a "B" or "R" to the config name
+    # if 'lris' in pargs.pypeit_name:
+    #     if len(pypeit_files) > 26:
+    #         print("Unable to parse configuration names for more than 26 LRIS configs")
+    #         print("Exiting...")
+    #         sys.exit(1)
+    #     # Get the red/blue prefix:
+    #     prefix = "B" if 'blue' in pargs.pypeit_name else "R"
+    #     print(f"Renaming LRIS configs to include {prefix} prefix")
+    #     Each entry looks like /path/to/output/keck_lris_A/keck_lris_A.pypeit
+    #     for pypeit_file_name in pypeit_files:
+    #         config_name = pypeit_file_name.split('.pypeit')[0][-1]
+    #         pypeit_file = Path(pypeit_file_name)
+    #         new_file_path = pypeit_file.parent.parent / f"{pargs.pypeit_name}_{prefix}{config_name}" / f"{pargs.pypeit_name}_{prefix}{config_name}.pypeit"
+    #         # Move the file to the new location
+    #         new_file_path.parent.mkdir(parents=True, exist_ok=True)
+    #         pypeit_file.rename(new_file_path)
+    #         print(f"Renamed {pypeit_file} to {new_file_path}")
+
 def handle_instrument_config(cfg, ps):
     """Adds user parameters from the config file to the PypeItSetup object.
     This modifies the PypeItSetup object in place.
@@ -281,13 +342,13 @@ def alert_RTI(directory, pargs, cfg):
         'instrument': pargs.inst,
         'ingesttype': cfg['RTI']['rti_ingesttype'],
         'datadir': str(directory),
-        'start': str(cfg.start_time),
+        'start': str(cfg['start_time']),
         'reingest': cfg['RTI']['rti_reingest'],
         'testonly': cfg['RTI']['rti_testonly'],
         'dev': cfg['RTI']['rti_dev']
     }
     
-    print({section: dict(cfg[section]) for section in cfg.sections()})
+    #print({section: dict(cfg[section]) for section in cfg.sections()})
     res = get_url(url, data)
     
 
@@ -381,14 +442,6 @@ def print_inst_options(cfg):
     print(f"Options are: '{inst_options}'")
 
 def main():
-
-    try:
-        from pypeit.pypeitsetup import PypeItSetup
-    except ImportError:
-        print("Could not import PypeIt. Is it installed in this environment?")
-        print("Exiting...")
-        sys.exit(1)
-
     
     # Parse the arguments
     pargs = get_parsed_args()
@@ -407,19 +460,33 @@ def main():
         sys.exit(0)
     
     # Get PypeIt's instrument name
-    pargs.pypeit_name = cfg['INSTRUMENTS'][pargs.inst]['pypeit_name']
+    pypeit_name = cfg['INSTRUMENTS'][pargs.inst]['pypeit_name']
 
     # If no root is specified, get it from the instruments list
     if pargs.root is None:
         pargs.root = cfg['INSTRUMENTS'][pargs.inst]['root']
 
+    roots = pargs.root if isinstance(pargs.root, list) else [pargs.root]
 
-    # Create all the pypeit files
-    generate_pypeit_files(pargs, PypeItSetup, cfg)
+    # If we're using a multi-arm instrument (i.e. LRIS, although some day maybe
+    # pypeit KCWI/KCRM), we need to reduce the red and blue sides separately, 
+    # so we need to make pypeit_name a list
+    if not isinstance(pypeit_name, list):
+        pypeit_name = [pypeit_name]
+    
+    if not isinstance(pargs.root, list):
+        roots = [pargs.root]
+
+    for i, spectrograph_name in enumerate(pypeit_name):
+        pargs.pypeit_name = spectrograph_name
+        pargs.root = roots[i]
+        # Create all the pypeit files
+        generate_pypeit_files(pargs, PypeItSetup, cfg)
     
     setup_files = Path(pargs.output) / 'pypeit_files'
+
     # Select only the pypeit files that are for an instrument configuration
-    pypeit_files = list(setup_files.rglob(f'{pargs.pypeit_name}_?.pypeit'))
+    pypeit_files = list(setup_files.rglob(f'keck_*.pypeit'))
             
     args = []
 

@@ -13,5 +13,5 @@ fits_table_thresholds : {
 }
 
 allowed_keywords : {
-    filter2 : 'NIRSPEC-1,NIRSPEC-3'
+    filter1 : 'NIRSPEC-1,NIRSPEC-3,NIRSPEC-5,NIRSPEC-7,Kband-new,KL'
 }
