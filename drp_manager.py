@@ -152,7 +152,7 @@ def process_start(pid, drp, drp_dir, drp_cmd, pypeit):
     Start the requested DRP
     '''
     if len(pid) > 0:
-        print('{drp} already running with PID: {pid}')
+        print(f'{drp} already running with PID: {pid}')
         return
 
     # start the DRP
