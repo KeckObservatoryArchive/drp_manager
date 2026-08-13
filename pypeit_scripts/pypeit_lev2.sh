@@ -9,6 +9,14 @@ DATE=`date -u '+%Y%m%d'`
 # INSTRUMENT is passed in on the command line
 INSTRUMENT=`echo $1 | tr '[a-z]' '[A-Z]'`
 
+# Get TelNr
+TELNR=`hostname | cut -c1-2`
+if [ "$TELNR" != "k1" ] && [ "$TELNR" != "k2" ]
+then
+  echo "k1 or k2? "
+  read TELNR
+fi
+
 # Conda environment location
 #ENV="$HOME/.conda/envs"
 ENV="/drp/envs"
@@ -22,6 +30,7 @@ if [ ! -d "$ENV/$PYPEIT_VERSION/bin" ]; then
 fi
 export PATH=$ENV/$PYPEIT_VERSION/bin:/usr/sbin:/usr/bin:/sbin:/bin
 LEV0DATA="/koadata/$INSTRUMENT/$DATE/lev0"
+RUN=true
 if [ ! -d $LEV0DIR ]
 then
   echo "No lev0 data found in $LEV0DATA"
@@ -35,13 +44,16 @@ then
     CALIB="--calibonly"
 fi
 
+# Set OUTPUTDIR
+OUTPUTDIR="/${TELNR}drpdata/${INSTRUMENT}_DRP/$DATE"
+
 # Start PypeIt
 if [ "$RUN" ]
 then
   echo "Input Data Directory: /koadata/$INSTRUMENT/$DATE/lev0"
-  echo "Output Data Directory: $OUTPUTDIR/${INSTRUMENT}_DRP/$DATE"
+  echo "Output Data Directory: $OUTPUTDIR"
   echo "PypeIt Version: $PYPEIT_VERSION"
   echo "PATH: $PATH"
   cd /drp/manager/default/pypeit_scripts
-  python pypeit_lev2.py $INSTRUMENT -i /koadata/$INSTRUMENT/$DATE/lev0 -o $OUTPUTDIR/$DATE -n 10 $CALIB
+  python pypeit_lev2.py $INSTRUMENT -i /koadata/$INSTRUMENT/$DATE/lev0 -o $OUTPUTDIR -n 10 $CALIB
 fi
