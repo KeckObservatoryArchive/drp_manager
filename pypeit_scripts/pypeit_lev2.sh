@@ -29,7 +29,7 @@ if [ ! -d "$ENV/$PYPEIT_VERSION/bin" ]; then
 	echo "No conda environment matching $PYPEIT_VERSION found!"
 fi
 export PATH=$ENV/$PYPEIT_VERSION/bin:/usr/sbin:/usr/bin:/sbin:/bin
-LEV0DATA="/koadata/$INSTRUMENT/$DATE/lev0"
+LEV0DATA="/${TELNR}koadata/$INSTRUMENT/$DATE/lev0"
 RUN=true
 if [ ! -d $LEV0DIR ]
 then
@@ -50,10 +50,10 @@ OUTPUTDIR="/${TELNR}drpdata/${INSTRUMENT}_DRP/$DATE"
 # Start PypeIt
 if [ "$RUN" ]
 then
-  echo "Input Data Directory: /koadata/$INSTRUMENT/$DATE/lev0"
+  echo "Input Data Directory: /${TELNR}koadata/$INSTRUMENT/$DATE/lev0"
   echo "Output Data Directory: $OUTPUTDIR"
   echo "PypeIt Version: $PYPEIT_VERSION"
   echo "PATH: $PATH"
   cd /drp/manager/default/pypeit_scripts
-  python pypeit_lev2.py $INSTRUMENT -i /koadata/$INSTRUMENT/$DATE/lev0 -o $OUTPUTDIR -n 10 $CALIB
+  python pypeit_lev2.py $INSTRUMENT -i /${TELNR}koadata/$INSTRUMENT/$DATE/lev0 -o $OUTPUTDIR -n 10 $CALIB
 fi
