@@ -1,0 +1,43 @@
+INSTRUMENTS : {
+
+  DEIMOS : {
+    pypeit_name : keck_deimos,
+    root : DE.,
+    ir : False
+  },
+  MOSFIRE : {
+    pypeit_name : keck_mosfire,
+    root : MF.,
+    ir : True
+  },
+  NIRES : {
+    pypeit_name : keck_nires,
+    root : NR.,
+    ir : True
+  },
+  HIRES : {
+    pypeit_name : keck_hires,
+    root : HI.,
+    ir : False
+  },
+  LRIS : {
+    pypeit_name : [keck_lris_red_mark4,keck_lris_blue],
+    root : [LR.,LB.],
+    ir : False
+  },
+  NIRSPEC : {
+    pypeit_name : keck_nirspec_high,
+    root : NS.,
+    ir : True
+  }
+}
+
+RTI : {
+  user : "",
+  pass : "",
+  url : "",
+  rti_ingesttype : "lev2",
+  rti_reingest : False,
+  rti_testonly : True,
+  rti_dev : True
+}

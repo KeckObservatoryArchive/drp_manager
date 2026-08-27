@@ -1,0 +1,17 @@
+user_cfg : {
+    rdx: {
+        ignore_bad_headers : 'True',
+    },
+    calibrations : {
+        flatfield : {
+            saturated_slits : 'mask'
+        }
+    }
+}
+
+fits_table_thresholds : {
+}
+
+allowed_keywords : {
+    filter1 : 'NIRSPEC-1,NIRSPEC-3,NIRSPEC-5,NIRSPEC-7,Kband-new,KL'
+}

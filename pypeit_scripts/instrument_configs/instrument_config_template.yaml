@@ -1,0 +1,32 @@
+# These are the pypeit instrument parameters.
+# rdx *must* come first, then order does not matter. The nested structure should
+# match that used by PypeIt.
+
+# ignore_bad_headers and saturated_slits are set for all instruments, as these
+# parameters generally help pypeit handle messy data/calibrations.
+user_cfg : {
+    rdx: {
+        ignore_bad_headers : True
+    },
+    calibrations : {
+        flatfield : {
+            saturated_slits : 'mask'
+        }
+    }
+}
+
+# Thresholds for the fits table - keys must match the columns used in the FITS
+# table used by PypeIt (you can find these in a .pypeit file). Values are the
+# thresholds used to match files, e.g. echangle : .01, will ensure that all files
+# with an echelle angle within 0.01 degrees of each other will be grouped.
+fits_table_thresholds : {
+}
+
+# These keys are used to exclude certain files from reductions. The keys must be
+# present in the FITS table used by PypeIt (you can find these in a .pypeit file).
+# The values are comma-separated strings of values to exclude. For example,
+# filter2 : 'NIRSPEC-1,NIRSPEC-3' will exclude all files with filter2 equal to
+# filters OTHER than NIRSPEC-1 or NIRSPEC-3.
+# allowed_keywords : {
+#     filter2 : 'NIRSPEC-1,NIRSPEC-3'
+# }

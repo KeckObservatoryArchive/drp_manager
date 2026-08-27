@@ -12,7 +12,6 @@ python lev2_manager.py instrument start|stop|restart|status [--utdate yyyymmdd] 
 import argparse
 import yaml
 from datetime import datetime, timedelta
-from urllib.request import urlopen
 import json
 from pathlib import Path
 import os
@@ -20,6 +19,9 @@ import sys
 import subprocess
 import psutil
 import getpass
+import requests
+import urllib3
+urllib3.disable_warnings()
 
 
 def main():
@@ -44,7 +46,7 @@ def main():
 
     # PypeIt?
     pypeit = False
-    if inst in config['PYPEIT']:
+    if config.get('PYPEIT', None) and inst in config['PYPEIT']:
         pypeit = True
 
     # DRP name and command
@@ -131,9 +133,11 @@ def chk_available(utdate, config, inst):
     hst = datetime.strptime(utdate, '%Y%m%d') - timedelta(days=1)
     hstDate = hst.strftime('%Y-%m-%d')
     api = f"{config['API']['TEL']}cmd=getInstrumentStatus&date={hstDate}"
-    data = urlopen(api)
-    data = data.read().decode('utf8')
-    data = json.loads(data)
+    params = {}
+    params['cmd'] = 'getInstrumentStatus'
+    params['date'] = hstDate
+    data = requests.get(config['API']['TEL'], params=params, verify=False)
+    data = data.json()
     if data[0][inst]['Available'] == 0 and data[0][inst]['Scheduled'] == 0:
         print(f"{inst} is not available")
         return False
@@ -148,7 +152,7 @@ def process_start(pid, drp, drp_dir, drp_cmd, pypeit):
     Start the requested DRP
     '''
     if len(pid) > 0:
-        print('{drp} already running with PID: {pid}')
+        print(f'{drp} already running with PID: {pid}')
         return
 
     # start the DRP

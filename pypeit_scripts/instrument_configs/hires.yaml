@@ -1,0 +1,26 @@
+user_cfg : {
+    rdx: {
+        ignore_bad_headers : 'True',
+    },
+    calibrations : {
+        flatfield : {
+            saturated_slits : 'mask'
+        },
+        standardframe : {
+            exprng : '1,None'
+        }
+    },
+    scienceframe : {
+        exprng : '1,None'
+    }
+}
+
+fits_table_thresholds : {
+    echangle : .01,
+    xdangle : .01
+}
+
+
+# allowed_keywords : {
+#     filter2 : 'NIRSPEC-1,NIRSPEC-3'
+# }

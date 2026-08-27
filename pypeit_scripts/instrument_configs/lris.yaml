@@ -1,0 +1,17 @@
+user_cfg : {
+    rdx: {
+        ignore_bad_headers : 'True',
+    },
+    baseprocess : {
+        use_biasimage : False,
+        use_overscan  : True
+    }
+    #calibrations : {
+    #    flatfield : {
+    #        saturated_slits : 'mask'
+    #    }
+    #}
+}
+
+fits_table_thresholds : {
+}
